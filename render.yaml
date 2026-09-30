@@ -1,0 +1,32 @@
+# Render Blueprint for the DEMO environment: API only (web runs on Vercel, database on Neon).
+# Render dashboard → New → Blueprint → pick this repo. Values marked sync: false are asked for in the
+# dashboard on first deploy and never stored in git. See docs/deploy-neon-vercel.md.
+services:
+  - type: web
+    name: mrp-api
+    runtime: docker
+    region: singapore
+    plan: free
+    rootDir: api
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      # Render routes traffic to the PORT it assigns (10000 by default); ASP.NET listens where it is told.
+      - key: ASPNETCORE_HTTP_PORTS
+        value: "10000"
+      - key: PORT
+        value: "10000"
+      # Application role connection string (Username=mrp_app, direct Neon host without "-pooler").
+      - key: ConnectionStrings__App
+        sync: false
+      # At least 32 characters; the same value as Jwt__SigningKey in .env.demo.
+      - key: Jwt__SigningKey
+        sync: false
+      # Set to the Vercel URL after the web app is deployed, e.g. https://mrp-web.vercel.app
+      - key: Cors__Origins__0
+        sync: false
+      - key: RateLimit__AuthPerMinute
+        value: "60"
