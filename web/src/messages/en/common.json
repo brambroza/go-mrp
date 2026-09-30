@@ -1,0 +1,100 @@
+{
+  "appName": "MRP",
+  "appDescription": "ERP for SME factories: purchasing, inventory and production",
+  "on": "On",
+  "off": "Off",
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close",
+    "confirm": "Confirm",
+    "retry": "Try again",
+    "search": "Search",
+    "back": "Back",
+    "home": "Go to dashboard",
+    "activate": "Activate",
+    "deactivate": "Deactivate"
+  },
+  "table": {
+    "empty": "No records yet",
+    "emptySearch": "Nothing matches your search",
+    "loading": "Loading…",
+    "searchPlaceholder": "Search code or name",
+    "clearSearch": "Clear search",
+    "actions": "Actions",
+    "range": "{from}–{to} of {total}",
+    "rowsPerPage": "Rows per page",
+    "perPage": "{count} / page",
+    "page": "Page {page} of {pages}",
+    "first": "First page",
+    "previous": "Previous page",
+    "next": "Next page",
+    "last": "Last page"
+  },
+  "state": {
+    "forbiddenTitle": "No access",
+    "forbiddenDescription": "Your account has no permission for this. Ask your company administrator.",
+    "errorTitle": "Could not load",
+    "unexpected": "Something unexpected happened. Please try again.",
+    "notFound": "Page not found",
+    "unavailableTitle": "Cannot reach the server",
+    "unavailableDescription": "Check your connection and try again. Your data is safe."
+  },
+  "fields": {
+    "code": "Code",
+    "name": "Name",
+    "nameEn": "English name",
+    "isActive": "Active",
+    "status": "Status"
+  },
+  "filters": {
+    "activeOnly": "Active only"
+  },
+  "select": {
+    "placeholder": "Select…",
+    "clear": "Clear selection",
+    "none": "None"
+  },
+  "date": {
+    "placeholder": "Pick a date",
+    "clear": "Clear date"
+  },
+  "password": {
+    "show": "Show password",
+    "hide": "Hide password"
+  },
+  "confirm": {
+    "reason": "Reason",
+    "reasonHint": "{count}/{max} characters"
+  },
+  "language": {
+    "label": "Change language",
+    "th": "ไทย (Thai)",
+    "en": "English"
+  },
+  "theme": {
+    "label": "Change theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "units": {
+    "days": "days"
+  },
+  "documentTypes": {
+    "PR": "Purchase request",
+    "PO": "Purchase order",
+    "GR": "Goods receipt",
+    "GI": "Goods issue",
+    "TF": "Stock transfer",
+    "ADJ": "Stock adjustment",
+    "CNT": "Stock count",
+    "RTS": "Return to supplier",
+    "LOT": "Lot number",
+    "SO": "Sales order",
+    "WO": "Work order",
+    "MRP": "MRP run"
+  }
+}

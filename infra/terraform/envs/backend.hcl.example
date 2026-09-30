@@ -1,0 +1,4 @@
+# Copy to envs/staging.backend.hcl and envs/production.backend.hcl (git-ignored), then:
+#   terraform init -reconfigure -backend-config=envs/staging.backend.hcl
+bucket = "your-terraform-state-bucket"
+prefix = "mrp/staging"

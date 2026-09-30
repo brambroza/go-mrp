@@ -1,0 +1,5 @@
+# Local Terraform working files. The root .gitignore already covers *.tfstate and *.tfvars.
+.terraform/
+*.backend.hcl
+*.tfplan
+tfplan

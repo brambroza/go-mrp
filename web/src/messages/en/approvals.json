@@ -1,0 +1,60 @@
+{
+  "title": "Approvals",
+  "description": "Documents waiting for you and the requests you sent.",
+  "tabs": {
+    "inbox": "Inbox",
+    "mine": "My requests"
+  },
+  "empty": {
+    "inbox": "Nothing is waiting for your approval",
+    "mine": "You have not submitted anything yet"
+  },
+  "fields": {
+    "documentNo": "Document no.",
+    "documentType": "Type",
+    "title": "Subject",
+    "amount": "Amount",
+    "requestedBy": "Requested by",
+    "requestedAt": "Requested at",
+    "status": "Status",
+    "step": "Step",
+    "reason": "Reason for rejecting",
+    "comment": "Comment (optional)"
+  },
+  "stepOf": "Step {step} of {total} · {name}",
+  "noSteps": "No approval steps",
+  "actions": {
+    "approve": "Approve",
+    "reject": "Reject",
+    "withdraw": "Withdraw"
+  },
+  "confirm": {
+    "approve": {
+      "title": "Approve {documentNo}?",
+      "description": "The document moves to the next step, or is approved if this is the last one."
+    },
+    "reject": {
+      "title": "Reject {documentNo}?",
+      "description": "The document goes back to the requester. A reason is required."
+    },
+    "withdraw": {
+      "title": "Withdraw {documentNo}?",
+      "description": "The document returns to draft so you can change and resubmit it."
+    }
+  },
+  "done": {
+    "approve": "Approved",
+    "reject": "Rejected",
+    "withdraw": "Withdrawn"
+  },
+  "history": {
+    "title": "History",
+    "empty": "No actions yet",
+    "Approve": "{name} approved (step {step})",
+    "Reject": "{name} rejected (step {step})",
+    "Withdraw": "{name} withdrew the request"
+  },
+  "detail": {
+    "title": "Approval request"
+  }
+}

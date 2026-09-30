@@ -1,0 +1,31 @@
+# Copy to envs/production.tfvars (git-ignored) and fill in. Contains no secrets, but it does contain
+# your project ID, so it stays out of git.
+
+project_id  = "your-production-project-id"
+region      = "asia-southeast1"
+environment = "production"
+name_prefix = "mrp"
+
+github_repository = "your-org/mrp"
+
+# 0-10 tenants: shared-core is enough. Move to db-custom-2-7680 (and REGIONAL) when the
+# platform has paying tenants that need the Cloud SQL SLA.
+db_tier                  = "db-g1-small"
+db_availability_type     = "ZONAL"
+db_disk_size_gb          = 10
+db_backup_retained_count = 14
+db_pitr_retention_days   = 7
+
+# Required for production (enforced by a precondition).
+deletion_protection = true
+
+# 0 = scale to zero (cheapest, cold start of a few seconds). Set api_min_instances = 1
+# when cold starts become a complaint; it adds a fixed monthly cost.
+api_min_instances = 0
+api_max_instances = 3
+web_min_instances = 0
+web_max_instances = 3
+
+# Optional custom domains (leave empty to use the run.app URLs).
+api_domain = ""
+web_domain = ""

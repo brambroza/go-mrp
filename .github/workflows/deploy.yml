@@ -1,0 +1,299 @@
+# Deploy: build images, migrate the database, roll out api and web on Cloud Run.
+#
+# Triggers
+#   - automatically to STAGING after the "CI" workflow succeeded for a push to main
+#   - manually (Run workflow) to staging or production
+#
+# Order of operations
+#   1. authenticate with Workload Identity Federation (no service account keys)
+#   2. build and push api + web images, tagged with the commit SHA
+#   3. point the migrate job at the new image, execute it and wait for success
+#   4. deploy new revisions WITHOUT traffic and smoke-test them on their "candidate" URL
+#   5. move 100% of the traffic to the new revisions and smoke-test the live URLs
+#   6. on any failure: move traffic back to the revisions that served before this run
+#
+# Database migrations are NOT rolled back automatically. Migrations must stay compatible with
+# the previous application version (expand, deploy, contract). See infra/README.md.
+#
+# Production approval
+#   The job runs in the GitHub environment named like the target ("staging" / "production").
+#   Required reviewers for "production" are configured in GitHub:
+#   Settings > Environments > production > Required reviewers. Google Cloud additionally accepts
+#   tokens only from jobs of the matching environment (Terraform: attribute_condition).
+#
+# Required configuration: GitHub ENVIRONMENT VARIABLES (Settings > Environments > <name> > Variables)
+# Set all of them for BOTH environments. None of them is a secret; this workflow uses no secrets.
+#   GCP_PROJECT_ID                   GCP project of the environment
+#   GCP_REGION                       e.g. asia-southeast1
+#   GCP_WORKLOAD_IDENTITY_PROVIDER   terraform output wif_provider_name
+#   GCP_DEPLOYER_SERVICE_ACCOUNT     terraform output deployer_service_account_email
+#   GAR_REPOSITORY                   terraform output registry_path
+#   API_BASE_URL                     public URL of the API, inlined into the web bundle
+#                                    (custom domain, or terraform output api_url)
+#   NAME_PREFIX                      optional, default "mrp" (Terraform variable name_prefix)
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        default: staging
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+
+concurrency:
+  # One deployment per environment at a time; a running deployment is never cancelled.
+  group: deploy-${{ inputs.environment || 'staging' }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment || 'staging' }}
+    # Automatic runs: only after a successful CI run that was triggered by a push (not a PR).
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: ${{ inputs.environment || 'staging' }}
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    env:
+      TARGET_ENVIRONMENT: ${{ inputs.environment || 'staging' }}
+      COMMIT_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+      PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      REGION: ${{ vars.GCP_REGION }}
+      GAR_REPOSITORY: ${{ vars.GAR_REPOSITORY }}
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      NAME_PREFIX: ${{ vars.NAME_PREFIX || 'mrp' }}
+    steps:
+      - name: Check configuration
+        env:
+          WIF_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          DEPLOYER: ${{ vars.GCP_DEPLOYER_SERVICE_ACCOUNT }}
+        run: |
+          missing=0
+          for name in PROJECT_ID REGION GAR_REPOSITORY API_BASE_URL WIF_PROVIDER DEPLOYER; do
+            if [ -z "${!name}" ]; then
+              echo "::error::GitHub environment variable for $name is not set in environment '$TARGET_ENVIRONMENT'"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Production is deployed from main only
+        if: env.TARGET_ENVIRONMENT == 'production' && github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Production deployments must be started from the main branch."
+          exit 1
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.COMMIT_SHA }}
+
+      - name: Require a successful CI run for this commit
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          passed="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --commit "$COMMIT_SHA" \
+            --status success --limit 1 --json databaseId --jq 'length')"
+          if [ "$passed" != "1" ]; then
+            echo "::error::No successful CI run found for commit $COMMIT_SHA."
+            exit 1
+          fi
+
+      - name: Image names
+        id: images
+        run: |
+          {
+            echo "api=$GAR_REPOSITORY/$NAME_PREFIX-api:$COMMIT_SHA"
+            echo "web=$GAR_REPOSITORY/$NAME_PREFIX-web:$COMMIT_SHA"
+            echo "api_service=$NAME_PREFIX-api"
+            echo "web_service=$NAME_PREFIX-web"
+            echo "migrate_job=$NAME_PREFIX-migrate"
+          } >> "$GITHUB_OUTPUT"
+
+      # ---------- authenticate ----------
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOYER_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "${GAR_REPOSITORY%%/*}" --quiet
+
+      # ---------- build ----------
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: api
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.images.outputs.api }}
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,scope=api,mode=max
+
+      - name: Build and push web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/docker/web.Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.images.outputs.web }}
+          build-args: |
+            NEXT_PUBLIC_API_BASE_URL=${{ vars.API_BASE_URL }}
+          cache-from: type=gha,scope=web-${{ env.TARGET_ENVIRONMENT }}
+          cache-to: type=gha,scope=web-${{ env.TARGET_ENVIRONMENT }},mode=max
+
+      # ---------- remember what is serving now ----------
+
+      - name: Record current revisions
+        id: previous
+        env:
+          API_SERVICE: ${{ steps.images.outputs.api_service }}
+          WEB_SERVICE: ${{ steps.images.outputs.web_service }}
+        run: |
+          serving_revision() {
+            gcloud run services describe "$1" --project "$PROJECT_ID" --region "$REGION" --format=json \
+              | jq -r '([.status.traffic[]? | select((.percent // 0) > 0)] | sort_by(.percent) | last | .revisionName) // .status.latestReadyRevisionName // ""'
+          }
+          api="$(serving_revision "$API_SERVICE")"
+          web="$(serving_revision "$WEB_SERVICE")"
+          echo "api=$api" >> "$GITHUB_OUTPUT"
+          echo "web=$web" >> "$GITHUB_OUTPUT"
+          echo "Serving before this deployment: api=$api web=$web"
+
+      # ---------- migrate ----------
+
+      - name: Run database migrations
+        env:
+          MIGRATE_JOB: ${{ steps.images.outputs.migrate_job }}
+          API_IMAGE: ${{ steps.images.outputs.api }}
+        run: |
+          gcloud run jobs update "$MIGRATE_JOB" --project "$PROJECT_ID" --region "$REGION" \
+            --image "$API_IMAGE" --quiet
+          # --wait blocks until the execution finished and fails the step when the job failed.
+          gcloud run jobs execute "$MIGRATE_JOB" --project "$PROJECT_ID" --region "$REGION" --wait
+
+      # ---------- deploy without traffic ----------
+
+      - name: Deploy API revision (no traffic)
+        env:
+          API_SERVICE: ${{ steps.images.outputs.api_service }}
+          API_IMAGE: ${{ steps.images.outputs.api }}
+        run: |
+          gcloud run deploy "$API_SERVICE" --project "$PROJECT_ID" --region "$REGION" \
+            --image "$API_IMAGE" --no-traffic --tag candidate --quiet
+
+      - name: Deploy web revision (no traffic)
+        env:
+          WEB_SERVICE: ${{ steps.images.outputs.web_service }}
+          WEB_IMAGE: ${{ steps.images.outputs.web }}
+        run: |
+          gcloud run deploy "$WEB_SERVICE" --project "$PROJECT_ID" --region "$REGION" \
+            --image "$WEB_IMAGE" --no-traffic --tag candidate --quiet
+
+      - name: Smoke test candidate revisions
+        env:
+          API_SERVICE: ${{ steps.images.outputs.api_service }}
+          WEB_SERVICE: ${{ steps.images.outputs.web_service }}
+        run: |
+          candidate_url() {
+            gcloud run services describe "$1" --project "$PROJECT_ID" --region "$REGION" --format=json \
+              | jq -r '[.status.traffic[]? | select(.tag == "candidate") | .url] | first // ""'
+          }
+          api_url="$(candidate_url "$API_SERVICE")"
+          web_url="$(candidate_url "$WEB_SERVICE")"
+          test -n "$api_url" && test -n "$web_url"
+          curl --fail --silent --show-error --retry 10 --retry-delay 3 --retry-all-errors \
+            --max-time 20 "$api_url/healthz"
+          echo
+          curl --fail --silent --show-error --location --retry 10 --retry-delay 3 --retry-all-errors \
+            --max-time 20 --output /dev/null "$web_url/"
+          echo "Candidate revisions are healthy."
+
+      # ---------- go live ----------
+
+      - name: Move traffic to the new revisions
+        id: golive
+        env:
+          API_SERVICE: ${{ steps.images.outputs.api_service }}
+          WEB_SERVICE: ${{ steps.images.outputs.web_service }}
+        run: |
+          gcloud run services update-traffic "$API_SERVICE" --project "$PROJECT_ID" --region "$REGION" \
+            --to-latest --quiet
+          gcloud run services update-traffic "$WEB_SERVICE" --project "$PROJECT_ID" --region "$REGION" \
+            --to-latest --quiet
+
+      - name: Smoke test live services
+        env:
+          API_SERVICE: ${{ steps.images.outputs.api_service }}
+          WEB_SERVICE: ${{ steps.images.outputs.web_service }}
+        run: |
+          service_url() {
+            gcloud run services describe "$1" --project "$PROJECT_ID" --region "$REGION" \
+              --format='value(status.url)'
+          }
+          api_url="$(service_url "$API_SERVICE")"
+          web_url="$(service_url "$WEB_SERVICE")"
+          curl --fail --silent --show-error --retry 10 --retry-delay 3 --retry-all-errors \
+            --max-time 20 "$api_url/healthz"
+          echo
+          curl --fail --silent --show-error --location --retry 10 --retry-delay 3 --retry-all-errors \
+            --max-time 20 --output /dev/null "$web_url/"
+          {
+            echo "### Deployed to $TARGET_ENVIRONMENT"
+            echo "- commit: \`$COMMIT_SHA\`"
+            echo "- api: $api_url"
+            echo "- web: $web_url"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ---------- rollback ----------
+
+      - name: Roll traffic back to the previous revisions
+        if: failure() && steps.previous.outcome == 'success'
+        env:
+          API_SERVICE: ${{ steps.images.outputs.api_service }}
+          WEB_SERVICE: ${{ steps.images.outputs.web_service }}
+          PREVIOUS_API: ${{ steps.previous.outputs.api }}
+          PREVIOUS_WEB: ${{ steps.previous.outputs.web }}
+        run: |
+          status=0
+          if [ -n "$PREVIOUS_API" ]; then
+            gcloud run services update-traffic "$API_SERVICE" --project "$PROJECT_ID" --region "$REGION" \
+              --to-revisions "$PREVIOUS_API=100" --quiet || status=1
+          fi
+          if [ -n "$PREVIOUS_WEB" ]; then
+            gcloud run services update-traffic "$WEB_SERVICE" --project "$PROJECT_ID" --region "$REGION" \
+              --to-revisions "$PREVIOUS_WEB=100" --quiet || status=1
+          fi
+          {
+            echo "### Deployment to $TARGET_ENVIRONMENT failed - traffic rolled back"
+            echo "- api serves: \`$PREVIOUS_API\`"
+            echo "- web serves: \`$PREVIOUS_WEB\`"
+            echo "- database migrations of commit \`$COMMIT_SHA\` may already be applied; see infra/README.md"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"

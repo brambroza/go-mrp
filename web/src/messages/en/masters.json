@@ -1,0 +1,152 @@
+{
+  "items": {
+    "title": "Items",
+    "description": "Raw materials, packaging, semi-finished and finished goods.",
+    "add": "Add item",
+    "edit": "Edit item",
+    "view": "Item details",
+    "saved": "Item saved",
+    "searchPlaceholder": "Search code, name or barcode",
+    "barcode": "Barcode",
+    "itemType": "Item type",
+    "supplyType": "Supply type",
+    "itemGroup": "Item group",
+    "stockUnit": "Stock unit",
+    "stockUnitFixed": "Cannot be changed after the item was created",
+    "purchaseUnit": "Purchase unit",
+    "sameAsStockUnit": "Same as stock unit",
+    "standardCost": "Standard cost",
+    "lotSection": "Lots and shelf life",
+    "isLotTracked": "Track by lot",
+    "shelfLifeDays": "Shelf life",
+    "planningSection": "Planning and ordering",
+    "leadTimeDays": "Lead time",
+    "safetyStock": "Safety stock",
+    "minStock": "Minimum stock",
+    "maxStock": "Maximum stock",
+    "minOrderQty": "Minimum order quantity",
+    "orderMultiple": "Order multiple",
+    "zeroMeansNone": "0 = not set"
+  },
+  "itemTypes": {
+    "RawMaterial": "Raw material",
+    "Packaging": "Packaging",
+    "Bulk": "Bulk",
+    "SemiFinished": "Semi-finished",
+    "FinishedGood": "Finished good",
+    "Service": "Service"
+  },
+  "supplyTypes": {
+    "Buy": "Buy",
+    "Make": "Make"
+  },
+  "units": {
+    "title": "Units",
+    "description": "Units of measure and their conversions.",
+    "tab": "Units",
+    "add": "Add unit",
+    "edit": "Edit unit",
+    "view": "Unit details",
+    "saved": "Unit saved"
+  },
+  "conversions": {
+    "title": "Unit conversions",
+    "add": "Add conversion",
+    "edit": "Edit conversion",
+    "view": "Conversion details",
+    "saved": "Conversion saved",
+    "item": "Item",
+    "allItems": "All items",
+    "formula": "Conversion",
+    "keyFixed": "Item and units cannot be changed; only the factor.",
+    "itemHint": "Leave empty to apply to every item",
+    "fromUnit": "From unit",
+    "toUnit": "To unit",
+    "factor": "Factor",
+    "factorHint": "1 from-unit = factor × to-unit, e.g. 1 box = 12 pieces"
+  },
+  "itemGroups": {
+    "title": "Item groups",
+    "description": "Group items for reports and search.",
+    "add": "Add item group",
+    "edit": "Edit item group",
+    "view": "Item group details",
+    "saved": "Item group saved"
+  },
+  "warehouses": {
+    "title": "Warehouses",
+    "description": "Warehouses and their storage locations.",
+    "add": "Add warehouse",
+    "edit": "Edit warehouse",
+    "view": "Warehouse details",
+    "saved": "Warehouse saved",
+    "type": "Warehouse type",
+    "typeHint": "Only stock in general and production warehouses is available to issue."
+  },
+  "warehouseTypes": {
+    "General": "General",
+    "Quarantine": "Quarantine",
+    "Production": "Production",
+    "Scrap": "Scrap"
+  },
+  "locations": {
+    "title": "Locations",
+    "add": "Add location",
+    "edit": "Edit location",
+    "view": "Location details",
+    "saved": "Location saved"
+  },
+  "partners": {
+    "taxId": "Tax ID",
+    "taxIdHint": "13 digits for Thai companies",
+    "branchNo": "Branch no.",
+    "branchNoHint": "00000 = head office",
+    "address": "Address",
+    "contactName": "Contact person",
+    "phone": "Phone",
+    "email": "E-mail",
+    "creditDays": "Credit term"
+  },
+  "customers": {
+    "title": "Customers",
+    "description": "Customers and their credit terms.",
+    "add": "Add customer",
+    "edit": "Edit customer",
+    "view": "Customer details",
+    "saved": "Customer saved",
+    "creditLimit": "Credit limit",
+    "checkCredit": "Check credit limit",
+    "checkCreditHint": "Warn when open amounts exceed the limit"
+  },
+  "suppliers": {
+    "title": "Suppliers",
+    "description": "Suppliers and their purchase prices.",
+    "add": "Add supplier",
+    "edit": "Edit supplier",
+    "view": "Supplier details",
+    "saved": "Supplier saved",
+    "currency": "Currency",
+    "currencyHint": "3-letter code, e.g. THB, USD",
+    "vatPercent": "VAT",
+    "vatHint": "Leave empty to use the company rate",
+    "vatDefault": "Company rate"
+  },
+  "prices": {
+    "title": "Purchase prices",
+    "add": "Add price",
+    "edit": "Edit price",
+    "view": "Price details",
+    "saved": "Price saved",
+    "item": "Item",
+    "unit": "Unit",
+    "minQty": "Minimum quantity",
+    "minQtyHint": "The price applies from this quantity",
+    "unitPrice": "Unit price",
+    "validity": "Valid",
+    "noEnd": "open",
+    "validFrom": "Valid from",
+    "validTo": "Valid to",
+    "validToHint": "Empty = no end date",
+    "keyFixed": "The item cannot be changed; create a new price."
+  }
+}

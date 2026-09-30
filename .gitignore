@@ -1,0 +1,45 @@
+# Legacy reference clone must never be committed (see docs/legacy/README.md)
+DK-ERP-SYSTEM/
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pfx
+*.key
+secrets.json
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# .NET
+bin/
+obj/
+*.user
+TestResults/
+coverage/
+*.coverage
+coverage.cobertura.xml
+
+# Node / Next.js / Expo
+node_modules/
+.next/
+out/
+dist/
+.expo/
+.turbo/
+*.tsbuildinfo
+playwright-report/
+test-results/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log

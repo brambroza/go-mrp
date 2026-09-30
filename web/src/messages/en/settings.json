@@ -1,0 +1,198 @@
+{
+  "modules": {
+    "platform": "Platform & approvals",
+    "masters": "Master data",
+    "inventory": "Inventory",
+    "purchasing": "Purchasing",
+    "production": "Production"
+  },
+  "permissions": {
+    "platform": {
+      "users": {
+        "manage": "Manage users"
+      },
+      "roles": {
+        "manage": "Manage roles and permissions"
+      },
+      "settings": {
+        "manage": "Change settings and document numbers"
+      },
+      "approvals": {
+        "configure": "Configure approval routes"
+      }
+    },
+    "masters": {
+      "read": "View master data",
+      "manage": "Create and edit master data"
+    },
+    "inventory": {
+      "read": "View stock, lots and movements",
+      "receive": "Receive goods",
+      "issue": "Issue goods",
+      "transfer": "Transfer stock",
+      "adjust": "Adjust and count stock",
+      "qc": "Record QC results",
+      "period": {
+        "close": "Close and reopen periods"
+      }
+    },
+    "purchasing": {
+      "read": "View purchase requests and orders",
+      "pr": {
+        "manage": "Create and edit purchase requests"
+      },
+      "po": {
+        "manage": "Create and edit purchase orders"
+      }
+    },
+    "production": {
+      "read": "View BOMs, MRP and work orders",
+      "bom": {
+        "manage": "Create and edit BOMs"
+      },
+      "mrp": {
+        "run": "Run MRP"
+      },
+      "workorder": {
+        "manage": "Create and edit work orders"
+      }
+    }
+  },
+  "users": {
+    "title": "Users",
+    "description": "The users of your company and their roles.",
+    "add": "Add user",
+    "edit": "Edit user",
+    "view": "User details",
+    "saved": "User saved",
+    "searchPlaceholder": "Search user name or display name",
+    "userName": "User name",
+    "userNameRule": "3-100 characters: letters, digits and . _ @ -",
+    "userNameFixed": "The user name cannot be changed",
+    "displayName": "Display name",
+    "email": "E-mail",
+    "roles": "Roles",
+    "twoFactor": "2FA",
+    "language": "Language",
+    "password": "Password",
+    "passwordRule": "At least 8 characters with a lowercase letter (a-z) and a digit",
+    "newPassword": "New password",
+    "newPasswordHint": "Leave empty to keep the current password",
+    "inactiveHint": "Inactive users cannot sign in and do not count towards the package limit."
+  },
+  "roles": {
+    "title": "Roles & permissions",
+    "description": "Decide what each role may do.",
+    "add": "Add role",
+    "edit": "Edit role",
+    "view": "Role details",
+    "saved": "Role saved",
+    "name": "Role name",
+    "system": "System",
+    "systemHint": "System roles have every permission and cannot be changed.",
+    "permissionCount": "Permissions",
+    "allPermissions": "All",
+    "selectAll": "Select all ({selected}/{total})"
+  },
+  "routes": {
+    "title": "Approval routes",
+    "description": "Define the approval steps of each document type.",
+    "documentType": "Document type",
+    "steps": "Steps",
+    "autoApprove": "Approved automatically (no steps)",
+    "twoFactorShort": "2FA required",
+    "saved": "Approval route saved",
+    "edit": "Approval route: {type}",
+    "editDescription": "Documents pass the steps in order; steps whose minimum amount is not reached are skipped.",
+    "name": "Route name",
+    "isActive": "Route is active",
+    "isActiveHint": "When off, documents of this type are approved automatically.",
+    "noSteps": "No steps yet: documents are approved automatically.",
+    "step": "Step {number}",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "removeStep": "Remove step",
+    "stepName": "Step name",
+    "role": "Approver role",
+    "roleHint": "Every user with this role can approve.",
+    "minAmount": "Minimum amount",
+    "minAmountHint": "Empty = every amount",
+    "requireTwoFactor": "Require 2FA",
+    "requireTwoFactorHint": "The approver must have signed in with a 2FA code.",
+    "addStep": "Add step",
+    "stepLine": "{number}. {name}"
+  },
+  "numbering": {
+    "title": "Document numbers",
+    "description": "The number format of each document type.",
+    "documentType": "Document type",
+    "period": "Restart numbering",
+    "periodHint": "The running number restarts at 1 in a new period. The year in the number is Gregorian.",
+    "digits": "Digits",
+    "digitsRule": "3 to 10 digits",
+    "example": "Example",
+    "liveExample": "Example of the first number in a new period",
+    "saved": "Number format saved",
+    "edit": "Document number: {type}",
+    "prefix": "Prefix",
+    "prefixRule": "1-10 letters or digits",
+    "separator": "Separator",
+    "periods": {
+      "None": "Never",
+      "Year": "Every year",
+      "Month": "Every month"
+    },
+    "separators": {
+      "none": "None",
+      "dash": "Hyphen (-)",
+      "slash": "Slash (/)"
+    }
+  },
+  "general": {
+    "title": "General settings",
+    "description": "The rules your company works by.",
+    "saved": "Settings saved",
+    "options": {
+      "Fifo": "FIFO — first received, first out",
+      "Fefo": "FEFO — first expired, first out"
+    },
+    "keys": {
+      "approval": {
+        "allowSelfApprove": {
+          "label": "Allow approving own documents",
+          "description": "When off, requesters cannot approve documents they created."
+        }
+      },
+      "inventory": {
+        "issueStrategy": {
+          "label": "Lot picking order",
+          "description": "The order in which lots are picked for issues and transfers."
+        },
+        "allowNegativeStock": {
+          "label": "Allow negative stock",
+          "description": "Not recommended: cost and balances become unreliable."
+        },
+        "qcOnReceive": {
+          "label": "QC before use",
+          "description": "Received lots wait for a QC result before they can be issued."
+        }
+      },
+      "purchasing": {
+        "vatPercent": {
+          "label": "Default VAT rate",
+          "description": "Used when the supplier has no rate of its own."
+        },
+        "overReceivePercent": {
+          "label": "Over-receipt tolerance",
+          "description": "Percent by which a receipt may exceed the ordered quantity."
+        }
+      },
+      "production": {
+        "overIssuePercent": {
+          "label": "Over-issue tolerance",
+          "description": "Percent by which material issues may exceed the plan."
+        }
+      }
+    }
+  }
+}

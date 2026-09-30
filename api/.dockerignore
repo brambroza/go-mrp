@@ -1,0 +1,28 @@
+# Keep the build context small and make sure no local secrets or build output reach the image.
+**/bin/
+**/obj/
+**/TestResults/
+**/coverage/
+**/*.user
+**/.vs/
+**/.idea/
+**/.vscode/
+**/.DS_Store
+
+# Tests are not part of the runtime image.
+tests/
+
+# Local configuration and secrets.
+**/.env
+**/.env.*
+**/secrets.json
+**/appsettings.Local.json
+**/*.pfx
+**/*.key
+
+# Not needed inside the image.
+Dockerfile
+.dockerignore
+**/*.md
+.git
+.gitignore

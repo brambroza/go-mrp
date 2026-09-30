@@ -1,0 +1,123 @@
+{
+  "generic": "Something went wrong. Please try again.",
+  "client": {
+    "network": "Cannot reach the server. Check your connection and try again.",
+    "validation": "Some fields are not valid. Please check the marked fields.",
+    "forbidden_origin": "The request was blocked for security reasons. Please reload the page.",
+    "upstream_unavailable": "The service is temporarily unavailable. Please try again shortly.",
+    "payload_too_large": "The data sent is too large."
+  },
+  "http": {
+    "400": "The request is not valid.",
+    "401": "Your session expired. Please sign in again.",
+    "403": "You do not have permission to do this.",
+    "404": "The record was not found.",
+    "409": "The record conflicts with existing data.",
+    "429": "Too many attempts. Please wait a moment and try again.",
+    "500": "The server failed. Try again, and contact support if it keeps happening.",
+    "502": "The service is temporarily unavailable.",
+    "503": "The service is temporarily unavailable.",
+    "504": "The service took too long to answer. Please try again."
+  },
+  "common": {
+    "concurrent_update": "Someone else changed this record. Reload and try again.",
+    "duplicate": "This code already exists.",
+    "forbidden": "You do not have permission to do this.",
+    "in_use": "This record is in use and cannot be changed or removed.",
+    "invalid_transition": "This action is not allowed in the current status.",
+    "not_found": "The record was not found."
+  },
+  "platform": {
+    "auth": {
+      "invalid_credentials": "Company code, user name or password is incorrect.",
+      "invalid_refresh_token": "Your session expired. Please sign in again.",
+      "locked_out": "The account is locked after too many failed attempts. Try again in 15 minutes.",
+      "two_factor_already_enabled": "Two-factor authentication is already on.",
+      "two_factor_invalid": "The verification code is wrong or expired.",
+      "two_factor_required": "Enter the code from your authenticator app."
+    },
+    "tenant": {
+      "invalid_slug": "The company code is not valid.",
+      "slug_taken": "This company code is taken. Choose another one.",
+      "suspended": "This company account is suspended. Please contact support."
+    },
+    "users": {
+      "last_owner": "The company must keep at least one active owner.",
+      "limit_reached": "The user limit of your package is reached. Deactivate a user or upgrade."
+    },
+    "roles": {
+      "system_readonly": "System roles cannot be changed.",
+      "unknown": "One of the selected roles does not exist.",
+      "unknown_permission": "One of the permissions is not known."
+    },
+    "settings": {
+      "invalid": "A setting has an invalid value or is out of range."
+    },
+    "numbering": {
+      "invalid_digits": "Digits must be between 3 and 10.",
+      "invalid_prefix": "Prefix must be 1-10 letters or digits.",
+      "invalid_separator": "Separator must be -, / or none.",
+      "unknown_document_type": "This document type is not known."
+    },
+    "approval": {
+      "comment_required": "A reason is required to reject.",
+      "invalid_min_amount": "Minimum amount must not be negative.",
+      "not_approver": "You are not an approver of the current step.",
+      "not_pending": "This request has already been decided.",
+      "not_requester": "Only the requester can withdraw the request.",
+      "self_approve": "You cannot approve your own document.",
+      "two_factor_required": "This step needs two-factor authentication: turn on 2FA in the user menu, then sign out and sign in with a code.",
+      "unknown_document_type": "This document type is not known.",
+      "unknown_role": "A step refers to a role that does not exist."
+    }
+  },
+  "masters": {
+    "invalid_code": "Code must be 1-40 characters without spaces.",
+    "name_required": "Name is required.",
+    "reference_not_found": "A referenced record was not found.",
+    "item": {
+      "inactive": "This item is inactive.",
+      "max_below_min": "Maximum stock must not be below minimum stock.",
+      "negative_value": "Quantities, days and cost must not be negative.",
+      "not_found": "Item not found.",
+      "stock_unit_fixed": "The stock unit of an item cannot be changed.",
+      "stock_unit_required": "Stock unit is required."
+    },
+    "unit": {
+      "not_found": "Unit not found."
+    },
+    "uom": {
+      "invalid_factor": "Factor must be greater than 0.",
+      "key_fixed": "Item and units of a conversion cannot be changed; create a new one.",
+      "no_conversion": "No conversion is defined between these units.",
+      "reverse_exists": "The reverse conversion already exists; edit that one instead.",
+      "same_unit": "From and to unit must differ."
+    },
+    "warehouse": {
+      "not_found": "Warehouse not found."
+    },
+    "location": {
+      "not_found": "Location not found.",
+      "warehouse_fixed": "A location cannot be moved to another warehouse."
+    },
+    "customer": {
+      "invalid_credit_limit": "Credit limit must not be negative."
+    },
+    "partner": {
+      "invalid_credit_days": "Credit days must be between 0 and 365."
+    },
+    "supplier": {
+      "invalid_currency": "The currency code is not valid.",
+      "invalid_vat": "VAT rate must be between 0 and 100.",
+      "not_found": "Supplier not found."
+    },
+    "price": {
+      "invalid_period": "Valid-to must not be before valid-from.",
+      "key_fixed": "Supplier and item of a price cannot be changed; create a new one.",
+      "negative": "Quantity and price must not be negative."
+    }
+  },
+  "inventory": {
+    "insufficient_stock": "There is not enough stock for this document."
+  }
+}

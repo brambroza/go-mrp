@@ -1,0 +1,48 @@
+{
+  "groups": {
+    "overview": "Overview",
+    "masters": "Master data",
+    "purchasing": "Purchasing",
+    "inventory": "Inventory",
+    "production": "Production",
+    "approvals": "Approvals",
+    "settings": "Settings"
+  },
+  "items": {
+    "dashboard": "Dashboard",
+    "items": "Items",
+    "units": "Units",
+    "itemGroups": "Item groups",
+    "warehouses": "Warehouses",
+    "customers": "Customers",
+    "suppliers": "Suppliers",
+    "purchaseRequests": "Purchase requests",
+    "purchaseOrders": "Purchase orders",
+    "stockDocuments": "Stock documents",
+    "onHand": "Stock on hand",
+    "stockCard": "Stock card",
+    "lots": "Lots & QC",
+    "periods": "Period closing",
+    "boms": "Bills of materials",
+    "mrp": "MRP planning",
+    "workOrders": "Work orders",
+    "approvals": "Approval inbox",
+    "users": "Users",
+    "roles": "Roles & permissions",
+    "approvalRoutes": "Approval routes",
+    "numbering": "Document numbers",
+    "general": "General"
+  },
+  "comingSoon": "Soon",
+  "requiresPlan": "{plan} plan",
+  "toggleSidebar": "Toggle menu",
+  "pendingApprovals": "{count} pending approvals",
+  "user": {
+    "menu": "User menu",
+    "profile": "Profile",
+    "twoFactor": "Two-factor authentication",
+    "signOut": "Sign out"
+  },
+  "menu": "Main menu",
+  "menuDescription": "The menu of the app, grouped by module"
+}

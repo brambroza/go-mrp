@@ -1,0 +1,8 @@
+packages:
+  - "web"
+  - "mobile"
+  - "packages/*"
+allowBuilds:
+  '@parcel/watcher': false
+  '@swc/core': false
+  unrs-resolver: false

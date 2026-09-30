@@ -1,0 +1,10 @@
+{
+  "name": "mrp",
+  "private": true,
+  "packageManager": "pnpm@11.8.0",
+  "scripts": {
+    "api:openapi": "curl -sf http://localhost:5080/openapi/v1.json | python3 -m json.tool > packages/api-client/openapi.json && pnpm --filter @mrp/api-client generate",
+    "web:dev": "pnpm --filter @mrp/web dev",
+    "mobile:start": "pnpm --filter @mrp/mobile start"
+  }
+}

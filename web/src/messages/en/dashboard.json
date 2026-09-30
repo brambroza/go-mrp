@@ -1,0 +1,31 @@
+{
+  "greeting": "Hello, {name}",
+  "description": "What is waiting for you today.",
+  "sections": {
+    "todo": "To do",
+    "quickLinks": "Quick links"
+  },
+  "cards": {
+    "unavailable": "Could not load this number",
+    "pendingApprovals": {
+      "title": "Waiting for my approval",
+      "hint": "Documents you can approve"
+    },
+    "myRequests": {
+      "title": "My requests",
+      "hint": "Everything you submitted for approval"
+    },
+    "draftRequests": {
+      "title": "Draft purchase requests",
+      "hint": "Not submitted yet"
+    },
+    "draftOrders": {
+      "title": "Draft purchase orders",
+      "hint": "Not submitted yet"
+    },
+    "draftStockDocuments": {
+      "title": "Draft stock documents",
+      "hint": "Not submitted or posted yet"
+    }
+  }
+}

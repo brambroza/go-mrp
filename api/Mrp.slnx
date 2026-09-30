@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Mrp.Api/Mrp.Api.csproj" />
+    <Project Path="src/Mrp.SharedKernel/Mrp.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/">
+    <Project Path="src/Modules/Mrp.Inventory/Mrp.Inventory.csproj" />
+    <Project Path="src/Modules/Mrp.Masters/Mrp.Masters.csproj" />
+    <Project Path="src/Modules/Mrp.Platform/Mrp.Platform.csproj" />
+    <Project Path="src/Modules/Mrp.Production/Mrp.Production.csproj" />
+    <Project Path="src/Modules/Mrp.Purchasing/Mrp.Purchasing.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Mrp.Domain.Tests/Mrp.Domain.Tests.csproj" />
+    <Project Path="tests/Mrp.Integration.Tests/Mrp.Integration.Tests.csproj" />
+  </Folder>
+</Solution>

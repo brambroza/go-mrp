@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "MRP",
+    "slug": "mrp-mobile",
+    "version": "0.1.0",
+    "scheme": "mrp",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "co.goalong.mrp",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "ใช้กล้องเพื่อสแกนบาร์โค้ดและ QR ของ lot สินค้า"
+      }
+    },
+    "android": {
+      "package": "co.goalong.mrp",
+      "permissions": [
+        "android.permission.CAMERA"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-sqlite",
+      "expo-localization",
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "ใช้กล้องเพื่อสแกนบาร์โค้ดและ QR ของ lot สินค้า",
+          "recordAudioAndroid": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "platforms": [
+      "ios",
+      "android"
+    ]
+  }
+}

@@ -1,0 +1,197 @@
+# CI: build and test every part of the monorepo.
+#
+# Jobs:
+#   api        .NET build + unit tests + integration tests (Testcontainers needs Docker) + coverage
+#   web        typecheck, lint, test, build      (skipped while web/package.json does not exist)
+#   mobile     typecheck, lint, test             (skipped while mobile/package.json does not exist)
+#   terraform  fmt check + validate              (no cloud credentials needed)
+#
+# No secrets or variables are required by this workflow.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: "1"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  detect:
+    name: Detect workspaces
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      web: ${{ steps.detect.outputs.web }}
+      mobile: ${{ steps.detect.outputs.mobile }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # hashFiles() returns an empty string when no file matches, and it can only be evaluated
+      # after checkout, so the result is exposed as a job output for the job-level conditions below.
+      - name: Detect web and mobile
+        id: detect
+        env:
+          HAS_WEB: ${{ hashFiles('web/package.json') != '' }}
+          HAS_MOBILE: ${{ hashFiles('mobile/package.json') != '' }}
+        run: |
+          echo "web=$HAS_WEB" >> "$GITHUB_OUTPUT"
+          echo "mobile=$HAS_MOBILE" >> "$GITHUB_OUTPUT"
+          echo "web=$HAS_WEB mobile=$HAS_MOBILE"
+
+  api:
+    name: API (.NET)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: api/global.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('api/global.json', 'api/**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore Mrp.slnx
+
+      # Warnings stay visible in the log and are repeated in the summary at the end of the build.
+      - name: Build
+        run: dotnet build Mrp.slnx --configuration Release --no-restore -consoleLoggerParameters:Summary
+
+      - name: Unit tests
+        run: >
+          dotnet test tests/Mrp.Domain.Tests
+          --configuration Release --no-build
+          --collect:"XPlat Code Coverage"
+          --results-directory TestResults/domain
+          --logger "trx;LogFileName=domain.trx"
+
+      # Testcontainers starts postgres:17-alpine on the runner's Docker daemon.
+      - name: Integration tests
+        run: >
+          dotnet test tests/Mrp.Integration.Tests
+          --configuration Release --no-build
+          --collect:"XPlat Code Coverage"
+          --results-directory TestResults/integration
+          --logger "trx;LogFileName=integration.trx"
+
+      - name: Upload test results and coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-results
+          path: |
+            api/TestResults/**/*.trx
+            api/TestResults/**/coverage.cobertura.xml
+          if-no-files-found: warn
+          retention-days: 14
+
+  web:
+    name: Web (Next.js)
+    needs: detect
+    if: needs.detect.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Inlined at build time; CI only checks that the build works.
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:5080
+    steps:
+      - uses: actions/checkout@v4
+
+      # The pnpm version comes from "packageManager" in the root package.json.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck API client
+        run: pnpm --filter @mrp/api-client typecheck
+
+      - name: Typecheck
+        run: pnpm --filter @mrp/web typecheck
+
+      - name: Lint
+        run: pnpm --filter @mrp/web lint
+
+      - name: Test
+        run: pnpm --filter @mrp/web test --passWithNoTests
+
+      - name: Build
+        run: pnpm --filter @mrp/web build
+
+  mobile:
+    name: Mobile (Expo)
+    needs: detect
+    if: needs.detect.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm --filter @mrp/mobile typecheck
+
+      - name: Lint
+        run: pnpm --filter @mrp/mobile lint
+
+      - name: Test
+        run: pnpm --filter @mrp/mobile test --passWithNoTests
+
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: infra/terraform
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~> 1.9"
+
+      - name: Format check
+        run: terraform fmt -check -recursive -diff
+
+      # -backend=false: validate needs the providers but no state bucket and no credentials.
+      - name: Init
+        run: terraform init -backend=false -input=false
+
+      - name: Validate
+        run: terraform validate -no-color

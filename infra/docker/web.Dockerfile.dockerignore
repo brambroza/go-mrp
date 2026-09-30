@@ -1,0 +1,25 @@
+# Ignore file for infra/docker/web.Dockerfile (build context = repository root).
+# Allow-list approach: ignore everything, then re-include only what the web build needs.
+# This keeps secrets (.env), the legacy clone, the API and the mobile app out of the build context.
+*
+
+!package.json
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
+!.npmrc
+!web/
+!packages/
+
+# Never send dependencies, build output or local configuration.
+**/node_modules
+**/.next
+**/out
+**/dist
+**/.turbo
+**/coverage
+**/playwright-report
+**/test-results
+**/*.tsbuildinfo
+**/.env
+**/.env.*
+**/.DS_Store

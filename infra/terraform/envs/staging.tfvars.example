@@ -1,0 +1,28 @@
+# Copy to envs/staging.tfvars (git-ignored) and fill in. Contains no secrets, but it does contain
+# your project ID, so it stays out of git.
+
+project_id  = "your-staging-project-id"
+region      = "asia-southeast1"
+environment = "staging"
+name_prefix = "mrp"
+
+github_repository = "your-org/mrp"
+
+# Cheapest setup that still looks like production.
+db_tier                  = "db-g1-small"
+db_availability_type     = "ZONAL"
+db_disk_size_gb          = 10
+db_backup_retained_count = 7
+db_pitr_retention_days   = 7
+
+# Staging may be destroyed and recreated.
+deletion_protection = false
+
+api_min_instances = 0
+api_max_instances = 2
+web_min_instances = 0
+web_max_instances = 2
+
+# Optional custom domains (leave empty to use the run.app URLs).
+api_domain = ""
+web_domain = ""

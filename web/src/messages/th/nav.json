@@ -1,0 +1,48 @@
+{
+  "groups": {
+    "overview": "ภาพรวม",
+    "masters": "ข้อมูลหลัก",
+    "purchasing": "จัดซื้อ",
+    "inventory": "คลังสินค้า",
+    "production": "ผลิต",
+    "approvals": "อนุมัติ",
+    "settings": "ตั้งค่า"
+  },
+  "items": {
+    "dashboard": "แดชบอร์ด",
+    "items": "สินค้า/วัตถุดิบ",
+    "units": "หน่วยนับ",
+    "itemGroups": "กลุ่มสินค้า",
+    "warehouses": "คลังสินค้า",
+    "customers": "ลูกค้า",
+    "suppliers": "ผู้ขาย",
+    "purchaseRequests": "ใบขอซื้อ (PR)",
+    "purchaseOrders": "ใบสั่งซื้อ (PO)",
+    "stockDocuments": "เอกสารคลัง",
+    "onHand": "ยอดคงเหลือ",
+    "stockCard": "Stock card",
+    "lots": "Lot และ QC",
+    "periods": "ปิดงวดสต็อก",
+    "boms": "สูตรการผลิต (BOM)",
+    "mrp": "วางแผน MRP",
+    "workOrders": "ใบสั่งผลิต",
+    "approvals": "กล่องอนุมัติ",
+    "users": "ผู้ใช้",
+    "roles": "บทบาทและสิทธิ์",
+    "approvalRoutes": "ขั้นตอนอนุมัติ",
+    "numbering": "เลขที่เอกสาร",
+    "general": "ตั้งค่าทั่วไป"
+  },
+  "comingSoon": "เร็ว ๆ นี้",
+  "requiresPlan": "แพ็ก {plan}",
+  "toggleSidebar": "เปิด/ปิดเมนู",
+  "pendingApprovals": "รออนุมัติ {count} รายการ",
+  "user": {
+    "menu": "เมนูผู้ใช้",
+    "profile": "โปรไฟล์",
+    "twoFactor": "ยืนยันตัวตนสองขั้น (2FA)",
+    "signOut": "ออกจากระบบ"
+  },
+  "menu": "เมนูหลัก",
+  "menuDescription": "เมนูของระบบ แยกตามโมดูล"
+}
