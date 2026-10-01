@@ -14,6 +14,7 @@ export const namespaces = [
   "approvals",
   "settings",
   "placeholder",
+  "landing",
 ] as const;
 
 /** Name of a message namespace. */

@@ -1,0 +1,38 @@
+# MRP — ERP for Thai SME factories
+
+> Multi-tenant SaaS ERP for small and medium factories in Thailand: material requirements planning (MRP),
+> lot-based inventory with FIFO/FEFO picking, purchasing with configurable approval steps, multi-level
+> bills of materials and work orders. Thai-first UI, English available.
+
+## What it does today
+
+- MRP that nets usable stock (lots waiting for QC are excluded), adds open purchase orders and work orders,
+  applies safety stock, lead time and lot sizing, and proposes purchase requests and work orders that can be
+  created with one click. A second run does not propose the same items again.
+- Inventory as an append-only ledger: every movement is a new entry, voids are reversals, balances are
+  derived from the ledger. Lots carry supplier lot, manufacturing and expiry dates and QC status.
+- Purchasing: purchase requests, purchase orders with tiered supplier prices, receiving against PO with an
+  over-receipt tolerance, returns to supplier.
+- Approval engine: steps per document type, amount thresholds, mandatory two-factor sign-in for a step,
+  mobile approval; requesters cannot approve their own documents.
+- Multi-level BOM with versions (one active per item), explosion with shortages, where-used.
+- Security: one database, every table carries tenant_id and PostgreSQL Row-Level Security is enforced;
+  the API connects with a role that cannot bypass it.
+
+## In development
+
+Shop-floor data entry through LINE and QR codes; Excel import; jobs for contract manufacturers with
+subcontracting and profit per job; connectors for Express, PEAK and FlowAccount; asking the system
+questions through LINE with AI.
+
+## Packages (launch pricing, THB per month)
+
+- Starter 2,900: purchasing and inventory, 5 users
+- Pro 6,900: plus BOM, MRP and work orders, 15 users
+- Enterprise 15,000: plus sales, invoicing, accounting links, API, dedicated database
+
+## Links
+
+- Landing page: /
+- Sign up: /signup
+- Sign in: /login

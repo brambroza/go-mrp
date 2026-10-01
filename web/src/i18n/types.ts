@@ -4,6 +4,7 @@ import type auth from "@/messages/th/auth.json";
 import type common from "@/messages/th/common.json";
 import type dashboard from "@/messages/th/dashboard.json";
 import type errors from "@/messages/th/errors.json";
+import type landing from "@/messages/th/landing.json";
 import type masters from "@/messages/th/masters.json";
 import type nav from "@/messages/th/nav.json";
 import type placeholder from "@/messages/th/placeholder.json";
@@ -21,6 +22,7 @@ export interface Messages {
   common: typeof common;
   dashboard: typeof dashboard;
   errors: typeof errors;
+  landing: typeof landing;
   masters: typeof masters;
   nav: typeof nav;
   placeholder: typeof placeholder;

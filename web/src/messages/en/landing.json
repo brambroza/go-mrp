@@ -1,0 +1,179 @@
+{
+  "meta": {
+    "title": "MRP — ERP for SME factories: material planning, FIFO lot stock, mobile approvals",
+    "description": "ERP for Thai SME factories. Run MRP and know what to buy and make, and by when. Stock by lot with automatic FIFO/FEFO picking. Approve purchase orders from your phone. Every company's data is isolated at the database level. Free trial.",
+    "keywords": "ERP SME factory, MRP software, material requirements planning, FIFO lot inventory, lot tracking, manufacturing ERP Thailand, factory SaaS, purchasing approval"
+  },
+  "nav": {
+    "features": "Features",
+    "how": "How it works",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "login": "Sign in",
+    "signup": "Start free",
+    "skip": "Skip to content"
+  },
+  "hero": {
+    "eyebrow": "ERP for Thai SME factories",
+    "title": "Know what will run out before the line stops",
+    "subtitle": "Run MRP and see at once what to buy, what to make and by which day. Stock is kept by lot and picked FIFO for you. Supervisors approve purchase orders from their phone.",
+    "primary": "Start free",
+    "secondary": "Sign in",
+    "trust1": "Each company's data is isolated at the database level",
+    "trust2": "Stock history can never be edited",
+    "trust3": "Thai and English"
+  },
+  "demo": {
+    "title": "Real screens, not drawings",
+    "subtitle": "Three things a factory uses every day",
+    "mrp": {
+      "label": "MRP result",
+      "doc": "MRP-2610-0003",
+      "need": "Cream 50 g · 2,500 pcs · due 21 Oct",
+      "colItem": "Item",
+      "colNeed": "Need",
+      "colHave": "Have",
+      "colOrder": "Proposed",
+      "colWhen": "Order by",
+      "make": "Make",
+      "buy": "Buy",
+      "late": "13 days late",
+      "enough": "OK",
+      "cta": "Create PR and work orders in one click"
+    },
+    "fifo": {
+      "label": "FIFO issue",
+      "doc": "Issue RM-OIL 120 KG to WO-2610-0004",
+      "lot1": "LOT-2609-0009 · received 1 Sep",
+      "lot2": "LOT-2609-0014 · received 10 Sep",
+      "lot3": "LOT-2609-0031 · waiting for QC",
+      "take": "Take {qty} KG",
+      "skip": "Skip",
+      "note": "The oldest lot goes first; lots that have not passed QC are skipped"
+    },
+    "approve": {
+      "label": "Approve on mobile",
+      "doc": "PO-2610-0012 · 12,198.00 THB",
+      "step1": "Supervisor",
+      "step2": "Manager (above 10,000)",
+      "done": "Approved",
+      "waiting": "Waiting",
+      "note": "Approval steps depend on amount and document type; nobody can approve their own request"
+    }
+  },
+  "features": {
+    "title": "What the system does for you",
+    "subtitle": "Designed from a real factory, without carrying the defects of the old generation",
+    "items": {
+      "mrp": {
+        "title": "MRP that nets real stock",
+        "body": "Counts what you have, what is on order, safety stock, lead time and minimum order, then tells you when to order. Late orders are flagged at once."
+      },
+      "ledger": {
+        "title": "Stock as a ledger that cannot be rewritten",
+        "body": "Every movement is a new entry. Voiding a document writes a reversal. Every unit can be traced back."
+      },
+      "lot": {
+        "title": "Lots and expiry",
+        "body": "Receive by lot, issue FIFO or FEFO, skip lots waiting for QC or expired, scan lot barcodes."
+      },
+      "approval": {
+        "title": "Approval steps you configure",
+        "body": "Any number of steps, by amount, with mandatory two-factor sign-in for large amounts. Approve from a phone."
+      },
+      "purchasing": {
+        "title": "Purchasing with control",
+        "body": "Purchase requests, purchase orders, receiving against PO with an over-receipt limit, tiered supplier prices."
+      },
+      "bom": {
+        "title": "Multi-level bills of materials",
+        "body": "Nested BOMs with versions, one active at a time, explosion with shortages, and where-used for any material."
+      }
+    },
+    "soonTitle": "In development",
+    "soonBadge": "Coming soon",
+    "soon": {
+      "line": "Shop floor via LINE and QR codes, no training",
+      "excel": "Excel import with results on day one",
+      "job": "Contract-manufacturing jobs and profit per job",
+      "accounting": "Connectors for Express, PEAK and FlowAccount",
+      "ai": "Ask about your factory through LINE with AI"
+    }
+  },
+  "how": {
+    "title": "Up and running in 3 steps",
+    "step1": {
+      "title": "Create your company",
+      "body": "Choose a company code, add users and roles, set approval steps the way you already work"
+    },
+    "step2": {
+      "title": "Enter items, BOMs and opening stock",
+      "body": "Materials, packaging, products, units and conversions, BOMs, on-hand per lot"
+    },
+    "step3": {
+      "title": "Run MRP and follow it",
+      "body": "Enter demand, run, get proposed purchase requests and work orders, create them and send for approval"
+    }
+  },
+  "stats": {
+    "tests": "automated tests that must pass before every release",
+    "decimals": "decimal places for quantities, nothing lost in unit conversion",
+    "rls": "of data tables isolated per company at the database level",
+    "rlsValue": "100%"
+  },
+  "pricing": {
+    "title": "Launch pricing",
+    "subtitle": "May change before general availability. No setup fee, cancel monthly.",
+    "perMonth": "THB/month",
+    "users": "{count} users",
+    "cta": "Start free",
+    "starter": {
+      "name": "Starter",
+      "price": "2,900",
+      "f1": "Purchasing with approvals",
+      "f2": "Lot inventory, FIFO, barcodes",
+      "f3": "Stock card and monthly close"
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "6,900",
+      "badge": "Recommended for manufacturers",
+      "f1": "Everything in Starter",
+      "f2": "Multi-level BOM and MRP",
+      "f3": "Work orders with issue and output tracking"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "price": "15,000",
+      "f1": "Everything in Pro",
+      "f2": "Sales, invoicing and accounting links",
+      "f3": "API and a dedicated database"
+    }
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "q1": "How is this MRP different from Excel?",
+    "a1": "It nets usable stock (excluding lots waiting for QC), adds what is arriving from purchase orders and work orders, and offsets by each item's lead time. The result is a list of buy and make proposals you can turn into documents with one click, and the next run does not propose them again.",
+    "q2": "Do we have to change our accounting software?",
+    "a2": "No. The system does not do accounting. Today it exports data as files; connectors for Express, PEAK and FlowAccount are in development.",
+    "q3": "How safe is our company's data?",
+    "a3": "Each company is a separate tenant and the database enforces the separation with Row-Level Security on every table, not only in application code. Sign-in supports two-factor authentication, and nobody can approve their own request.",
+    "q4": "Does it work on mobile?",
+    "a4": "Yes. Every web page works on a phone, and there is an app for warehouse work such as receiving, issuing, counting and barcode scanning that keeps working offline and syncs when back online.",
+    "q5": "Can a contract manufacturer (OEM) use it?",
+    "a5": "Yes for inventory, purchasing, BOM and MRP. Tracking an order as a job, sending work to subcontractors and profit per order are next on the roadmap.",
+    "q6": "How long does onboarding take?",
+    "a6": "You can start the same day if your item list and BOMs are ready. Today data is entered on the web; Excel import is being built so you see results from day one."
+  },
+  "cta": {
+    "title": "Run MRP on your own data",
+    "body": "Free to start, no credit card, set up in 10 minutes",
+    "button": "Create your company"
+  },
+  "footer": {
+    "tagline": "ERP for Thai SME factories",
+    "login": "Sign in",
+    "signup": "Sign up",
+    "rights": "All rights reserved"
+  }
+}
