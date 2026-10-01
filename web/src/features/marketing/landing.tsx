@@ -60,6 +60,11 @@ const SCHEDULE_ROWS: ReadonlyArray<readonly ["mixer1" | "mixer2" | "filler", Rea
   ["filler", [["wo3", 36, 44, true]]],
 ];
 
+/** Vendor links shown in the footer. */
+const GOALONG_SITE = "https://goalong.co.th/";
+const GOALONG_CONTACT = "https://goalong.co.th/contact/";
+const GOALONG_HOST = "goalong.co.th";
+
 const FEATURE_KEYS = ["mrp", "ledger", "lot", "approval", "purchasing", "bom", "costing", "schedule"] as const;
 const SOON_KEYS = ["line", "excel", "job", "accounting", "ai"] as const;
 const FAQ_KEYS = ["1", "2", "3", "4", "5", "6", "7"] as const;
@@ -522,14 +527,67 @@ export function Landing() {
         </section>
       </main>
 
-      <footer className={`border-t ${line}`}>
-        <div className={`mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm ${soft}`}>
-          <span>{t("footer.tagline")}</span>
-          <div className="flex gap-5">
-            <Link href="/login" className="transition hover:text-slate-900">{t("footer.login")}</Link>
-            <Link href="/signup" className="transition hover:text-slate-900">{t("footer.signup")}</Link>
+      <footer className={`border-t ${line} bg-slate-50/70`}>
+        <div className="mx-auto max-w-6xl px-4 py-14">
+          <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2.5 font-semibold">
+                <span className="grid size-7 place-items-center rounded-lg bg-slate-950 text-xs font-bold text-white" aria-hidden>
+                  {"M"}
+                </span>
+                <span className="tracking-tight">{t("footer.tagline")}</span>
+              </div>
+              <p className={`mt-4 max-w-sm text-sm leading-relaxed ${soft}`}>{t("footer.about")}</p>
+            </div>
+
+            <nav aria-label={t("footer.product")} className="text-sm">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("footer.product")}</h2>
+              <ul className="mt-4 space-y-2.5">
+                <li><a href="#features" className={`${soft} transition hover:text-slate-950`}>{t("footer.features")}</a></li>
+                <li><a href="#pricing" className={`${soft} transition hover:text-slate-950`}>{t("footer.pricing")}</a></li>
+                <li><a href="#faq" className={`${soft} transition hover:text-slate-950`}>{t("footer.faq")}</a></li>
+              </ul>
+            </nav>
+
+            <nav aria-label={t("footer.account")} className="text-sm">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("footer.account")}</h2>
+              <ul className="mt-4 space-y-2.5">
+                <li><Link href="/login" className={`${soft} transition hover:text-slate-950`}>{t("footer.login")}</Link></li>
+                <li><Link href="/signup" className={`${soft} transition hover:text-slate-950`}>{t("footer.signup")}</Link></li>
+              </ul>
+            </nav>
+
+            <div className="text-sm">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("footer.company")}</h2>
+              <ul className="mt-4 space-y-2.5">
+                <li>
+                  <a href={GOALONG_SITE} target="_blank" rel="noopener noreferrer" className={`${soft} transition hover:text-slate-950`}>
+                    {t("footer.website")}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={GOALONG_CONTACT}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 font-medium text-slate-950 transition hover:text-sky-700"
+                  >
+                    {t("footer.contact")}
+                    <ArrowRight className="size-3.5" aria-hidden />
+                  </a>
+                  <p className={`mt-1 text-xs ${soft}`}>{t("footer.contactHint")}</p>
+                </li>
+                <li className={soft}>{t("footer.support")}</li>
+              </ul>
+            </div>
           </div>
-          <span>{`© ${new Date().getFullYear()} · ${t("footer.rights")}`}</span>
+
+          <div className={`mt-12 flex flex-wrap items-center justify-between gap-3 border-t ${line} pt-6 text-xs ${soft}`}>
+            <span>{`© ${new Date().getFullYear()} ${t("footer.owner")} · ${t("footer.rights")}`}</span>
+            <a href={GOALONG_SITE} target="_blank" rel="noopener noreferrer" className="transition hover:text-slate-950">
+              {GOALONG_HOST}
+            </a>
+          </div>
         </div>
       </footer>
     </div>

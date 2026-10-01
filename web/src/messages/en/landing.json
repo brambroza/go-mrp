@@ -203,8 +203,21 @@
   },
   "footer": {
     "tagline": "ERP for Thai SME factories",
+    "about": "Built and supported by GoAlong, a Thai software house serving SMEs and enterprises in Thailand",
+    "product": "Product",
+    "features": "Features",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "account": "Account",
     "login": "Sign in",
     "signup": "Sign up",
-    "rights": "All rights reserved"
+    "company": "Company",
+    "companyName": "GoAlong",
+    "website": "GoAlong website",
+    "contact": "Contact us",
+    "contactHint": "Ask for a demo, pricing or onboarding",
+    "support": "Support Mon–Fri 09:00–18:00",
+    "rights": "All rights reserved",
+    "owner": "GoAlong Co., Ltd."
   }
 }

@@ -203,8 +203,21 @@
   },
   "footer": {
     "tagline": "ERP สำหรับโรงงาน SME ไทย",
+    "about": "พัฒนาและดูแลโดย GoAlong ซอฟต์แวร์เฮาส์ไทย ที่ทำระบบให้ SME และองค์กรในประเทศไทย",
+    "product": "ผลิตภัณฑ์",
+    "features": "ฟีเจอร์",
+    "pricing": "ราคา",
+    "faq": "คำถามที่พบบ่อย",
+    "account": "บัญชี",
     "login": "เข้าสู่ระบบ",
     "signup": "สมัครใช้งาน",
-    "rights": "สงวนลิขสิทธิ์"
+    "company": "บริษัท",
+    "companyName": "GoAlong",
+    "website": "เว็บไซต์ GoAlong",
+    "contact": "ติดต่อเรา",
+    "contactHint": "สอบถาม demo ราคา หรือการขึ้นระบบ",
+    "support": "ซัพพอร์ต จ–ศ 09:00–18:00",
+    "rights": "สงวนลิขสิทธิ์",
+    "owner": "GoAlong Co., Ltd."
   }
 }

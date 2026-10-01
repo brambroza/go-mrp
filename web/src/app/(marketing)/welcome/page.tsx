@@ -71,9 +71,11 @@ export default async function WelcomePage() {
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      name: "MRP",
-      url: `${base}/`,
-      description: t("footer.tagline"),
+      name: "GoAlong",
+      url: "https://goalong.co.th/",
+      description: t("footer.about"),
+      contactPoint: { "@type": "ContactPoint", contactType: "sales", url: "https://goalong.co.th/contact/", availableLanguage: ["th", "en"] },
+      brand: { "@type": "Brand", name: "MRP", url: `${base}/` },
     },
   ];
 
