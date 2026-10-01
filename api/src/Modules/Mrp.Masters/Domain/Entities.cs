@@ -124,8 +124,11 @@ public sealed class Item : CodedMaster
     /// <summary>Orders are rounded up to a multiple of this quantity; 0 = none.</summary>
     public decimal OrderMultiple { get; private set; }
 
-    /// <summary>Standard cost per stock unit.</summary>
+    /// <summary>Standard cost per stock unit (purchase price for bought items; for made items the rolled-up BOM cost may be applied here).</summary>
     public decimal StandardCost { get; private set; }
+
+    /// <summary>List sales price per stock unit; 0 = not for sale or not priced yet.</summary>
+    public decimal SalesPrice { get; private set; }
 
     /// <summary>Sets the item attributes.</summary>
     public void SetDetails(ItemDetails details)
@@ -136,9 +139,10 @@ public sealed class Item : CodedMaster
         }
 
         if (details.ShelfLifeDays is <= 0 || details.LeadTimeDays < 0 || details.SafetyStock < 0 || details.MinStock < 0
-            || details.MaxStock < 0 || details.MinOrderQty < 0 || details.OrderMultiple < 0 || details.StandardCost < 0)
+            || details.MaxStock < 0 || details.MinOrderQty < 0 || details.OrderMultiple < 0 || details.StandardCost < 0
+            || details.SalesPrice < 0)
         {
-            throw new DomainException("masters.item.negative_value", "Quantities, days and cost must not be negative.", 400);
+            throw new DomainException("masters.item.negative_value", "Quantities, days, cost and price must not be negative.", 400);
         }
 
         if (details.MaxStock > 0 && details.MaxStock < details.MinStock)
@@ -161,6 +165,18 @@ public sealed class Item : CodedMaster
         MinOrderQty = details.MinOrderQty;
         OrderMultiple = details.OrderMultiple;
         StandardCost = details.StandardCost;
+        SalesPrice = details.SalesPrice;
+    }
+
+    /// <summary>Replaces the standard cost, e.g. with the rolled-up BOM cost of a manufactured item.</summary>
+    public void SetStandardCost(decimal standardCost)
+    {
+        if (standardCost < 0)
+        {
+            throw new DomainException("masters.item.negative_value", "Cost must not be negative.", 400);
+        }
+
+        StandardCost = standardCost;
     }
 }
 
@@ -180,7 +196,8 @@ public sealed record ItemDetails(
     decimal MaxStock,
     decimal MinOrderQty,
     decimal OrderMultiple,
-    decimal StandardCost);
+    decimal StandardCost,
+    decimal SalesPrice = 0m);
 
 /// <summary><c>qty_to = qty_from × factor</c>, for one item or (when <see cref="ItemId"/> is null) for all items.</summary>
 public sealed class UnitConversion : Entity

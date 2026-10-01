@@ -18,7 +18,7 @@ public sealed record ItemDto(
     Guid Id, string Code, string Name, string? NameEn, bool IsActive,
     ItemType ItemType, SupplyType SupplyType, Guid? ItemGroupId, Guid StockUnitId, string StockUnitCode, Guid? PurchaseUnitId,
     string? Barcode, bool IsLotTracked, int? ShelfLifeDays, int LeadTimeDays,
-    decimal SafetyStock, decimal MinStock, decimal MaxStock, decimal MinOrderQty, decimal OrderMultiple, decimal StandardCost);
+    decimal SafetyStock, decimal MinStock, decimal MaxStock, decimal MinOrderQty, decimal OrderMultiple, decimal StandardCost, decimal SalesPrice);
 
 /// <summary>Creates or updates an item.</summary>
 public sealed record SaveItemRequest(
@@ -40,7 +40,8 @@ public sealed record SaveItemRequest(
     [property: Range(0, 999999999999.0)] decimal MaxStock = 0,
     [property: Range(0, 999999999999.0)] decimal MinOrderQty = 0,
     [property: Range(0, 999999999999.0)] decimal OrderMultiple = 0,
-    [property: Range(0, 99999999999999.0)] decimal StandardCost = 0);
+    [property: Range(0, 99999999999999.0)] decimal StandardCost = 0,
+    [property: Range(0, 99999999999999.0)] decimal SalesPrice = 0);
 
 /// <summary>Unit conversion.</summary>
 public sealed record UnitConversionDto(Guid Id, Guid? ItemId, Guid FromUnitId, Guid ToUnitId, decimal Factor);

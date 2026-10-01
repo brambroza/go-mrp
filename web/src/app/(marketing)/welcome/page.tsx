@@ -5,7 +5,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Landing } from "@/features/marketing/landing";
 import { siteUrl } from "@/lib/site";
 
-const FAQ_KEYS = ["1", "2", "3", "4", "5", "6"] as const;
+const FAQ_KEYS = ["1", "2", "3", "4", "5", "6", "7"] as const;
 
 /**
  * Search metadata of the landing page. It is the only indexable page: the root layout sets
@@ -57,7 +57,7 @@ export default async function WelcomePage() {
         priceCurrency: "THB",
         billingIncrement: "P1M",
       })),
-      featureList: (["mrp", "ledger", "lot", "approval", "purchasing", "bom"] as const).map((key) => t(`features.items.${key}.title`)),
+      featureList: (["mrp", "ledger", "lot", "approval", "purchasing", "bom", "costing", "schedule"] as const).map((key) => t(`features.items.${key}.title`)),
     },
     {
       "@context": "https://schema.org",

@@ -59,6 +59,27 @@
       "done": "Approved",
       "waiting": "Waiting",
       "note": "Approval steps depend on amount and document type; nobody can approve their own request"
+    },
+    "cost": {
+      "label": "Cost and margin",
+      "doc": "FG-CREAM-50G · Cream 50 g",
+      "material": "Materials from BOM",
+      "overhead": "Overhead 10%",
+      "total": "Cost per jar",
+      "price": "Sales price",
+      "margin": "Gross margin",
+      "note": "Rolled up from the bulk formula to the jar, including loss at every level; change a material price and the numbers follow"
+    },
+    "schedule": {
+      "label": "Machine schedule",
+      "doc": "Week 42 · 2 mixers, 1 filling line",
+      "mixer1": "MIX-01",
+      "mixer2": "MIX-02",
+      "filler": "FILL-01",
+      "wo1": "WO-0004 mix",
+      "wo2": "WO-0005 mix",
+      "wo3": "WO-0004 fill",
+      "note": "Orders are placed by due date on the first free machine; filling waits for mixing; nothing is scheduled outside working shifts"
     }
   },
   "features": {
@@ -88,6 +109,14 @@
       "bom": {
         "title": "Multi-level bills of materials",
         "body": "Nested BOMs with versions, one active at a time, explosion with shortages, and where-used for any material."
+      },
+      "costing": {
+        "title": "Cost and gross margin per product",
+        "body": "Rolls up cost from every BOM level with loss and an overhead percentage, then compares it with the sales price so you know the margin before quoting."
+      },
+      "schedule": {
+        "title": "Finite-capacity machine schedule",
+        "body": "Define operations and time per unit on the product; work orders are placed on machines within working shifts, each step after the previous one, and late jobs are flagged."
       }
     },
     "soonTitle": "In development",
@@ -163,7 +192,9 @@
     "q5": "Can a contract manufacturer (OEM) use it?",
     "a5": "Yes for inventory, purchasing, BOM and MRP. Tracking an order as a job, sending work to subcontractors and profit per order are next on the roadmap.",
     "q6": "How long does onboarding take?",
-    "a6": "You can start the same day if your item list and BOMs are ready. Today data is entered on the web; Excel import is being built so you see results from day one."
+    "a6": "You can start the same day if your item list and BOMs are ready. Today data is entered on the web; Excel import is being built so you see results from day one.",
+    "q7": "How is product cost calculated?",
+    "a7": "Unit cost = Σ(quantity per batch ÷ batch size × (1 + loss%) × component cost) × (1 + overhead%). Purchased components use their standard cost; manufactured components are rolled up the same way. The result is compared with the sales price to give margin per unit and in percent. Actual cost per order from issued materials is next on the roadmap."
   },
   "cta": {
     "title": "Run MRP on your own data",

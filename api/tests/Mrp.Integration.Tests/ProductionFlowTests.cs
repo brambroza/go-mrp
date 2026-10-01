@@ -201,6 +201,93 @@ public sealed class ProductionFlowTests(ApiFixture fixture)
         await (await reader.PostAsJsonAsync($"/api/v1/production/boms/{plant.JarBom.Id}/copy", new { })).ShouldBeAsync(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task Cost_roll_up_uses_overhead_setting_and_sales_price_for_margin()
+    {
+        var session = await fixture.CreateTenantAsync();
+        var data = await Factory.CreateAsync(session.Client);
+        var plant = await Plant.CreateAsync(data);
+        await (await session.Client.PutAsJsonAsync("/api/v1/settings", new[] { new { key = SettingKeys.OverheadPercent, value = 10m } })).ShouldBeAsync(HttpStatusCode.OK);
+
+        // Every item has standard cost 10. Bulk per kg: (0.7 + 0.2575) × 10 × 1.1 = 10.5325.
+        // Jar per piece: (0.051 × 10.5325 + 1.01 × 10) × 1.1 = 11.70087325.
+        var unpriced = await data.GetAsync<CostBreakdownDto>($"/api/v1/production/costing/items/{plant.Jar.Id}?quantity=1");
+        Assert.Equal(11.7009m, unpriced.UnitCost);
+        Assert.Null(unpriced.UnitMargin);
+        Assert.Contains("NO_PRICE", unpriced.Warnings);
+        Assert.Equal(["SM-BULK", "RM-WATER", "RM-OIL", "PK-JAR"], unpriced.Lines.Select(l => l.ItemCode));
+
+        var priced = await session.Client.PutAsJsonAsync($"/api/v1/masters/items/{plant.Jar.Id}", new
+        {
+            code = plant.Jar.Code, name = plant.Jar.Name, itemType = "FinishedGood", supplyType = "Make", stockUnitId = plant.Jar.StockUnitId,
+            leadTimeDays = 3, standardCost = 10m, salesPrice = 18.5m,
+        });
+        await priced.ShouldBeAsync(HttpStatusCode.OK);
+
+        var summary = await data.GetAsync<List<ItemCostSummary>>("/api/v1/production/costing");
+        var jar = summary.Single(s => s.ItemCode == "FG-JAR");
+        Assert.Equal((11.7009m, 10m, 18.5m, 6.7991m, 36.75m), (jar.RolledUpUnitCost, jar.StandardCostOnMaster, jar.SalesPrice, jar.UnitMargin, jar.MarginPercent));
+
+        var applied = await data.PostAsync<List<ItemCostSummary>>("/api/v1/production/costing/apply", new { itemIds = new[] { plant.Bulk.Id, plant.Jar.Id } });
+        Assert.Equal(10.5325m, applied.Single(s => s.ItemCode == "SM-BULK").StandardCostOnMaster);
+        Assert.Equal(11.7009m, applied.Single(s => s.ItemCode == "FG-JAR").StandardCostOnMaster);
+
+        var purchased = await session.Client.PostAsJsonAsync("/api/v1/production/costing/apply", new { itemIds = new[] { plant.Oil.Id } });
+        await purchased.ShouldBeAsync(HttpStatusCode.UnprocessableEntity);
+    }
+
+    [Fact]
+    public async Task Schedule_places_child_order_before_parent_and_keeps_locked_slots()
+    {
+        var session = await fixture.CreateTenantAsync();
+        var data = await Factory.CreateAsync(session.Client);
+        var plant = await Plant.CreateAsync(data);
+        await data.PostAsync<MachineDto>("/api/v1/production/machines", new { code = "MIX-01", name = "เครื่องผสม 1", machineGroup = "MIX", priority = 1 });
+        await data.PostAsync<MachineDto>("/api/v1/production/machines", new { code = "FILL-01", name = "สายบรรจุ 1", machineGroup = "FILL", priority = 1 });
+        var routing = await session.Client.PutAsJsonAsync($"/api/v1/production/items/{plant.Bulk.Id}/routing", new
+        {
+            operations = new[] { new { name = "ผสม", machineGroup = "mix", setupMinutes = 30m, minutesPerUnit = 1m } },
+        });
+        await routing.ShouldBeAsync(HttpStatusCode.OK);
+        await (await session.Client.PutAsJsonAsync($"/api/v1/production/items/{plant.Jar.Id}/routing", new
+        {
+            operations = new[] { new { name = "บรรจุ", machineGroup = "FILL", setupMinutes = 15m, minutesPerUnit = 0.5m } },
+        })).ShouldBeAsync(HttpStatusCode.OK);
+
+        var order = await data.PostAsync<WorkOrderDto>("/api/v1/production/work-orders", new
+        {
+            itemId = plant.Jar.Id, quantity = 100m, startDate = Today.AddDays(3), dueDate = Today.AddDays(10), createChildOrders = true,
+        });
+        var child = Assert.Single(order.ChildOrders);
+
+        var run = await data.PostAsync<ScheduleRunDto>("/api/v1/production/schedule/run", new { horizonDays = 30 });
+        Assert.Equal(2, run.WorkOrderCount);
+        Assert.Equal(2, run.SlotCount);
+        Assert.Empty(run.Exceptions);
+        var childJob = run.Jobs.Single(j => j.WorkOrderId == child.Id);
+        var parentJob = run.Jobs.Single(j => j.WorkOrderId == order.Id);
+        Assert.True(childJob.EndAt <= parentJob.StartAt);
+        Assert.False(parentJob.IsLate);
+
+        var gantt = await data.GetAsync<GanttDto>($"/api/v1/production/schedule?from={Iso(Today)}&to={Iso(Today.AddDays(30))}");
+        Assert.Equal(["MIX-01", "FILL-01"], gantt.Slots.OrderBy(s => s.StartAt).Select(s => s.MachineCode));
+        var mixSlot = gantt.Slots.Single(s => s.MachineCode == "MIX-01");
+        // Bulk: 5.1 kg → 30 + 5.1 = 35.1 → 36 minutes.
+        Assert.Equal(36, (int)(mixSlot.EndAt - mixSlot.StartAt).TotalMinutes);
+
+        var locked = await data.PostAsync<ScheduleSlotDto>($"/api/v1/production/schedule/slots/{mixSlot.Id}/lock", new { });
+        Assert.Equal(ScheduleSlotStatus.Locked, locked.Status);
+        var again = await data.PostAsync<ScheduleRunDto>("/api/v1/production/schedule/run", new { horizonDays = 30 });
+        Assert.Equal(1, again.WorkOrderCount);
+        var after = await data.GetAsync<List<ScheduleSlotDto>>($"/api/v1/production/schedule/work-orders/{child.Id}");
+        Assert.Equal((mixSlot.Id, ScheduleSlotStatus.Locked), (Assert.Single(after).Id, after[0].Status));
+
+        var (reader, _, _) = await session.CreateUserAsync("viewer", Permissions.ProductionRead);
+        await (await reader.PostAsJsonAsync("/api/v1/production/schedule/run", new { horizonDays = 30 })).ShouldBeAsync(HttpStatusCode.Forbidden);
+    }
+
+    private static string Iso(DateOnly date) => date.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+
     private static (PlannedOrderType, decimal, DateOnly, DateOnly) Key(PlannedOrderDto order) =>
         (order.OrderType, order.Quantity, order.ReleaseDate, order.DueDate);
 

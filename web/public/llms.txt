@@ -16,6 +16,11 @@
 - Approval engine: steps per document type, amount thresholds, mandatory two-factor sign-in for a step,
   mobile approval; requesters cannot approve their own documents.
 - Multi-level BOM with versions (one active per item), explosion with shortages, where-used.
+- Standard cost roll-up from the BOM (loss at every level plus an overhead percentage) compared with the
+  sales price: gross margin per unit and in percent, before quoting.
+- Finite-capacity machine scheduling: routings (operations with setup and run time per unit), machines in
+  groups, working shifts and holidays per tenant; work orders are placed child-before-parent and by due
+  date, each operation after the previous one, late orders flagged; slots can be locked.
 - Security: one database, every table carries tenant_id and PostgreSQL Row-Level Security is enforced;
   the API connects with a role that cannot bypass it.
 

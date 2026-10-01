@@ -23,6 +23,8 @@ public static class ProductionModule
         services.AddScoped<BomService>();
         services.AddScoped<WorkOrderService>();
         services.AddScoped<MrpService>();
+        services.AddScoped<CostingService>();
+        services.AddScoped<SchedulingService>();
         services.AddScoped<IStockReferenceHandler, WorkOrderStockHandler>();
         return services;
     }
@@ -35,7 +37,62 @@ public static class ProductionModule
         MapDemands(production);
         MapMrp(production);
         MapWorkOrders(production);
+        MapCosting(production);
+        MapScheduling(production);
         return api;
+    }
+
+    private static void MapScheduling(IEndpointRouteBuilder production)
+    {
+        var machines = production.MapGroup("/machines");
+        machines.MapGet("/", (SchedulingService service, CancellationToken ct) => service.ListMachinesAsync(ct))
+            .RequirePermission(Permissions.ProductionRead).WithName("ListMachines");
+        machines.MapPost("/", (SaveMachineRequest request, SchedulingService service, CancellationToken ct) => service.CreateMachineAsync(request, ct))
+            .Validate<SaveMachineRequest>().RequirePermission(Permissions.BomManage).WithName("CreateMachine");
+        machines.MapPut("/{id:guid}", (Guid id, SaveMachineRequest request, SchedulingService service, CancellationToken ct) => service.UpdateMachineAsync(id, request, ct))
+            .Validate<SaveMachineRequest>().RequirePermission(Permissions.BomManage).WithName("UpdateMachine");
+
+        production.MapGet("/items/{itemId:guid}/routing", (Guid itemId, SchedulingService service, CancellationToken ct) => service.GetRoutingAsync(itemId, ct))
+            .RequirePermission(Permissions.ProductionRead).WithName("GetRouting");
+        production.MapPut("/items/{itemId:guid}/routing", (Guid itemId, SaveRoutingRequest request, SchedulingService service, CancellationToken ct) =>
+                service.SaveRoutingAsync(itemId, request, ct))
+            .Validate<SaveRoutingRequest>().RequirePermission(Permissions.BomManage).WithName("SaveRouting");
+
+        var holidays = production.MapGroup("/holidays");
+        holidays.MapGet("/", (DateOnly? from, SchedulingService service, CancellationToken ct) => service.ListHolidaysAsync(from, ct))
+            .RequirePermission(Permissions.ProductionRead).WithName("ListHolidays");
+        holidays.MapPost("/", (SaveHolidayRequest request, SchedulingService service, CancellationToken ct) => service.CreateHolidayAsync(request, ct))
+            .Validate<SaveHolidayRequest>().RequirePermission(Permissions.BomManage).WithName("CreateHoliday");
+        holidays.MapDelete("/{id:guid}", async (Guid id, SchedulingService service, CancellationToken ct) =>
+            {
+                await service.DeleteHolidayAsync(id, ct);
+                return Results.NoContent();
+            })
+            .RequirePermission(Permissions.BomManage).WithName("DeleteHoliday");
+
+        var schedule = production.MapGroup("/schedule");
+        schedule.MapPost("/run", (RunScheduleRequest request, SchedulingService service, CancellationToken ct) => service.RunAsync(request, ct))
+            .Validate<RunScheduleRequest>().RequirePermission(Permissions.WorkOrderManage).WithName("RunSchedule");
+        schedule.MapGet("/", (DateOnly from, DateOnly to, SchedulingService service, CancellationToken ct) => service.GetGanttAsync(from, to, ct))
+            .RequirePermission(Permissions.ProductionRead).WithName("GetSchedule");
+        schedule.MapGet("/work-orders/{workOrderId:guid}", (Guid workOrderId, SchedulingService service, CancellationToken ct) => service.GetWorkOrderSlotsAsync(workOrderId, ct))
+            .RequirePermission(Permissions.ProductionRead).WithName("GetWorkOrderSchedule");
+        schedule.MapPost("/slots/{id:guid}/lock", (Guid id, SchedulingService service, CancellationToken ct) => service.SetLockAsync(id, true, ct))
+            .RequirePermission(Permissions.WorkOrderManage).WithName("LockScheduleSlot");
+        schedule.MapPost("/slots/{id:guid}/unlock", (Guid id, SchedulingService service, CancellationToken ct) => service.SetLockAsync(id, false, ct))
+            .RequirePermission(Permissions.WorkOrderManage).WithName("UnlockScheduleSlot");
+    }
+
+    private static void MapCosting(IEndpointRouteBuilder production)
+    {
+        var costing = production.MapGroup("/costing");
+        costing.MapGet("/", (CostingService service, CancellationToken ct) => service.ListAsync(ct))
+            .RequirePermission(Permissions.ProductionRead).WithName("ListItemCosts");
+        costing.MapGet("/items/{itemId:guid}", (Guid itemId, decimal? quantity, CostingService service, CancellationToken ct) =>
+                service.GetAsync(itemId, quantity ?? 1m, ct))
+            .RequirePermission(Permissions.ProductionRead).WithName("GetItemCostBreakdown");
+        costing.MapPost("/apply", (ApplyCostsRequest request, CostingService service, CancellationToken ct) => service.ApplyAsync(request, ct))
+            .Validate<ApplyCostsRequest>().RequirePermission(Permissions.BomManage).WithName("ApplyRolledUpCosts");
     }
 
     private static void MapBoms(IEndpointRouteBuilder production)

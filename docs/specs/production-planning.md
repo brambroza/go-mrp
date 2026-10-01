@@ -81,7 +81,45 @@ projected(0)      = on_hand (เฉพาะ lot Released ในคลังท�
 
 Golden test: `BomExploderTests`, `MrpEngineTests`, `ProductionFlowTests`
 
+### 4.4 ต้นทุนตามสูตรและกำไรเบื้องต้น (เพิ่ม 2026-10-01)
+
+```
+ต้นทุนต่อหน่วย (ผลิตเอง) = Σ(line.stock_quantity ÷ batch_size × (1 + loss%) × ต้นทุนส่วนประกอบ) × (1 + overhead%)
+ต้นทุนส่วนประกอบที่ซื้อ   = items.standard_cost
+ต้นทุนส่วนประกอบที่ผลิตเอง = คำนวณซ้อนด้วยสูตรเดียวกัน (overhead บวกทุกชั้นที่ผลิตเอง)
+กำไรต่อหน่วย = items.sales_price − ต้นทุนต่อหน่วย ; margin % = กำไร ÷ ราคาขาย × 100 (null ถ้าไม่มีราคาขาย)
+```
+- `overhead%` = tenant setting `costing.overheadPercent` (0–1000) · ปัดเงิน 4 ตำแหน่ง
+- ผลิตเองแต่ไม่มี BOM active → ใช้ `standard_cost` และเตือน `NO_BOM`; ไม่มีราคาขาย → `NO_PRICE`
+- `POST /costing/apply` เขียนต้นทุนที่คำนวณได้ลง `standard_cost` ของสินค้าผลิตเอง (เพื่อให้ MRP/รายงานใช้ค่าล่าสุด)
+- Golden test: `CostRollupTests`
+
+### 4.5 ตารางเครื่อง (scheduling, เพิ่ม 2026-10-01)
+
+| ตาราง | คอลัมน์สำคัญ |
+|---|---|
+| `production.machines` | code, name, machine_group, priority, is_active |
+| `production.routings` + `routing_operations` | item_id (1 routing ต่อ item), seq, name, machine_group, setup_minutes, minutes_per_unit |
+| `production.holidays` | date, name |
+| `production.schedule_slots` | work_order_id, seq, operation_name, machine_id, start_at, end_at (UTC), status (`Planned`/`Locked`), run_no |
+
+ปฏิทิน: tenant settings `scheduling.workDays` (ISO 1–7, ตั้งต้น จ–ศ) และ `scheduling.shifts` (ตั้งต้น 08:00–12:00, 13:00–17:00 — ค่า DK เดิมเป็นแค่ค่าตั้งต้น ไม่ hard-code) + วันหยุด
+
+Engine (`Scheduler`, forward, finite capacity, deterministic):
+1. เรียงใบสั่งผลิต: ใบลูก (semi) ก่อนใบแม่ แล้วตามกำหนดส่ง แล้วเลขที่
+2. ต่อ operation ตามลำดับ: เริ่มได้ไม่ก่อน operation ก่อนหน้าจบ และไม่ก่อนใบลูกจบ
+3. ระยะเวลา = `ceil(setup + minutes_per_unit × qty)` นาที วางลงเวลาทำงานเท่านั้น (ข้ามพัก/นอกกะ/วันหยุด/ล็อตขยายข้ามวันได้)
+4. เลือกเครื่องในกลุ่มที่**จบเร็วที่สุด** (เสมอกัน → เริ่มเร็วสุด → priority → code) โดยไม่ทับ slot ที่ล็อกหรือวางไปแล้ว
+5. จบหลังวันกำหนดส่ง → `LATE`; ไม่มี routing → `NO_ROUTING`; กลุ่มเครื่องไม่มีเครื่อง → `NO_MACHINE`; ใบลูก-แม่วน → `CYCLE`
+6. รันใหม่ลบเฉพาะ slot `Planned`; slot `Locked` คงที่และถูกวางหลบ; ใบที่มี slot ล็อกไม่ถูกวางใหม่ แต่ใบที่รอมันจะรอจนมันจบ
+
+ต่างจากระบบเดิม: วางทุก operation (เดิมวางแค่ตัวสุดท้าย), ใช้ priority เครื่องจริง, บังคับ dependency, กะเป็น config
+ยังไม่ทำ: ลาก-วางบน Gantt (ตอนนี้มี lock/unlock), กำลังคนเป็น constraint, แผนเบิก/รับวัตถุดิบจาก slot start − offset, ความจุ batch ต่อเครื่อง (min/max), เวลาข้ามเครื่องต่างกัน
+Golden test: `WorkCalendarTests`, `SchedulerTests`
+
 ## 5. API (ใต้ `/api/v1/production`)
+
+เพิ่ม 2026-10-01: `GET/POST/PUT /machines` · `GET/PUT /items/{itemId}/routing` · `GET/POST/DELETE /holidays` · `POST /schedule/run` · `GET /schedule?from&to` (Gantt) · `GET /schedule/work-orders/{id}` · `POST /schedule/slots/{id}/lock|unlock` · `GET /costing` · `GET /costing/items/{id}?quantity` · `POST /costing/apply`
 
 | Method | Path | สิทธิ์ |
 |---|---|---|

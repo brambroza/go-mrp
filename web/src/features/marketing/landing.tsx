@@ -2,7 +2,7 @@
 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowRight, Boxes, Check, Factory, Layers, ShieldCheck, ShoppingCart, Smartphone, Sparkles } from "lucide-react";
+import { ArrowRight, Boxes, Calculator, CalendarClock, Check, Factory, Layers, ShieldCheck, ShoppingCart, Smartphone, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useEffect, useRef, type ReactNode } from "react";
@@ -44,9 +44,25 @@ const STATS: ReadonlyArray<readonly [number, string, "tests" | "decimals" | "rls
   [100, "%", "rls"],
 ];
 
-const FEATURE_KEYS = ["mrp", "ledger", "lot", "approval", "purchasing", "bom"] as const;
+/** Rows of the cost demo panel: translation key, amount in THB as text, emphasis. */
+const COST_ROWS: ReadonlyArray<readonly ["material" | "overhead" | "total" | "price" | "margin", string, boolean]> = [
+  ["material", "7.71", false],
+  ["overhead", "0.77", false],
+  ["total", "8.48", true],
+  ["price", "18.50", false],
+  ["margin", "10.02 · 54%", true],
+];
+
+/** Machine rows of the schedule demo: machine key, blocks as [work-order key, start %, width %, late]. */
+const SCHEDULE_ROWS: ReadonlyArray<readonly ["mixer1" | "mixer2" | "filler", ReadonlyArray<readonly ["wo1" | "wo2" | "wo3", number, number, boolean]>]> = [
+  ["mixer1", [["wo1", 0, 34, false]]],
+  ["mixer2", [["wo2", 8, 30, false]]],
+  ["filler", [["wo3", 36, 44, true]]],
+];
+
+const FEATURE_KEYS = ["mrp", "ledger", "lot", "approval", "purchasing", "bom", "costing", "schedule"] as const;
 const SOON_KEYS = ["line", "excel", "job", "accounting", "ai"] as const;
-const FAQ_KEYS = ["1", "2", "3", "4", "5", "6"] as const;
+const FAQ_KEYS = ["1", "2", "3", "4", "5", "6", "7"] as const;
 const PLAN_KEYS = ["starter", "pro", "enterprise"] as const;
 const PLAN_USERS: Record<(typeof PLAN_KEYS)[number], number> = { starter: 5, pro: 15, enterprise: 30 };
 
@@ -57,6 +73,8 @@ const FEATURE_ICONS: Record<(typeof FEATURE_KEYS)[number], ReactNode> = {
   approval: <Smartphone className="size-5" aria-hidden />,
   purchasing: <ShoppingCart className="size-5" aria-hidden />,
   bom: <Layers className="size-5" aria-hidden />,
+  costing: <Calculator className="size-5" aria-hidden />,
+  schedule: <CalendarClock className="size-5" aria-hidden />,
 };
 
 /**
@@ -124,6 +142,26 @@ export function Landing() {
         stagger: 0.6,
         ease: "back.out(2)",
         scrollTrigger: { trigger: "[data-panel='approve']", start: "top 80%", once: true },
+      });
+
+      // Cost panel: amounts slide in, the margin line last.
+      gsap.from("[data-cost-row]", {
+        x: 12,
+        opacity: 0,
+        duration: 0.4,
+        stagger: 0.18,
+        ease: "power2.out",
+        scrollTrigger: { trigger: "[data-panel='cost']", start: "top 80%", once: true },
+      });
+
+      // Schedule panel: blocks grow onto the machine rows.
+      gsap.from("[data-block]", {
+        scaleX: 0,
+        transformOrigin: "left center",
+        duration: 0.7,
+        stagger: 0.25,
+        ease: "power2.out",
+        scrollTrigger: { trigger: "[data-panel='schedule']", start: "top 80%", once: true },
       });
 
       // Stats band: numbers count up when they come into view.
@@ -223,7 +261,7 @@ export function Landing() {
               <p className={`mt-2 ${soft}`}>{t("demo.subtitle")}</p>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               <article data-reveal data-panel="mrp" className={`flex min-w-0 flex-col p-5 ${panel}`}>
                 <PanelHeading label={t("demo.mrp.label")} doc={t("demo.mrp.doc")} sub={t("demo.mrp.need")} />
                 <div className="mt-4 overflow-x-auto">
@@ -308,6 +346,47 @@ export function Landing() {
                 </ol>
                 <p className={`mt-auto pt-5 text-xs ${soft}`}>{t("demo.approve.note")}</p>
               </article>
+
+              <article data-reveal data-panel="cost" className={`flex min-w-0 flex-col p-5 ${panel}`}>
+                <PanelHeading label={t("demo.cost.label")} doc={t("demo.cost.doc")} />
+                <dl className="mt-4 space-y-2 text-sm">
+                  {COST_ROWS.map(([key, amount, strong]) => (
+                    <div
+                      key={key}
+                      data-cost-row
+                      className={strong ? `flex items-baseline justify-between gap-3 border-t ${line} pt-2 font-semibold text-slate-950` : `flex items-baseline justify-between gap-3 ${soft}`}
+                    >
+                      <dt>{t(`demo.cost.${key}`)}</dt>
+                      <dd className={`font-mono tabular-nums ${key === "margin" ? "text-sky-700" : ""}`}>{amount}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <p className={`mt-auto pt-5 text-xs ${soft}`}>{t("demo.cost.note")}</p>
+              </article>
+
+              <article data-reveal data-panel="schedule" className={`flex min-w-0 flex-col p-5 ${panel} md:col-span-2 xl:col-span-2`}>
+                <PanelHeading label={t("demo.schedule.label")} doc={t("demo.schedule.doc")} />
+                <div className="mt-4 space-y-2">
+                  {SCHEDULE_ROWS.map(([machine, blocks]) => (
+                    <div key={machine} className="grid grid-cols-[72px_1fr] items-center gap-3 text-xs">
+                      <span className="font-mono text-slate-700">{t(`demo.schedule.${machine}`)}</span>
+                      <div className="relative h-8 overflow-hidden rounded-lg bg-[repeating-linear-gradient(to_right,transparent_0,transparent_calc(12.5%-1px),rgba(15,23,42,0.08)_calc(12.5%-1px),rgba(15,23,42,0.08)_12.5%)] bg-slate-50">
+                        {blocks.map(([wo, start, width, late]) => (
+                          <span
+                            key={wo}
+                            data-block
+                            className={`absolute inset-y-1 flex items-center truncate rounded-md px-2 font-medium ${late ? "bg-red-100 text-red-800 ring-1 ring-inset ring-red-200" : "bg-slate-950 text-white"}`}
+                            style={{ left: `${start}%`, width: `${width}%` }}
+                          >
+                            {t(`demo.schedule.${wo}`)}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className={`mt-auto pt-5 text-xs ${soft}`}>{t("demo.schedule.note")}</p>
+              </article>
             </div>
           </div>
         </section>
@@ -317,7 +396,7 @@ export function Landing() {
             <h2 id="features-title" className="text-balance text-3xl font-semibold tracking-tight text-slate-950">{t("features.title")}</h2>
             <p className={`mt-2 ${soft}`}>{t("features.subtitle")}</p>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {FEATURE_KEYS.map((key) => (
               <article key={key} data-reveal className={`group rounded-2xl border ${line} bg-white p-6 transition hover:border-slate-300 hover:shadow-[0_12px_40px_-24px_rgba(15,23,42,0.3)]`}>
                 <div className="mb-4 grid size-10 place-items-center rounded-xl bg-slate-950 text-white">{FEATURE_ICONS[key]}</div>

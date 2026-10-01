@@ -91,6 +91,14 @@ public sealed class TenantSettingsService(PlatformDbContext db, ITenantContext t
             SettingKeys.IssueStrategy => setting.Value.GetString() is "Fifo" or "Fefo",
             SettingKeys.OverReceivePercent or SettingKeys.VatPercent or SettingKeys.OverIssuePercent =>
                 setting.Value.TryGetDecimal(out var number) && number is >= 0 and <= 100,
+            SettingKeys.OverheadPercent => setting.Value.TryGetDecimal(out var overhead) && overhead is >= 0 and <= 1000,
+            SettingKeys.WorkDays => setting.Value.GetArrayLength() is >= 1 and <= 7
+                && setting.Value.EnumerateArray().All(d => d.ValueKind == JsonValueKind.Number && d.TryGetInt32(out var day) && day is >= 1 and <= 7),
+            SettingKeys.Shifts => setting.Value.GetArrayLength() is >= 1 and <= 6
+                && setting.Value.EnumerateArray().All(s => s.ValueKind == JsonValueKind.Object
+                    && s.TryGetProperty("start", out var start) && TimeOnly.TryParseExact(start.GetString(), "HH:mm", out var from)
+                    && s.TryGetProperty("end", out var end) && TimeOnly.TryParseExact(end.GetString(), "HH:mm", out var to)
+                    && to > from),
             _ => true,
         };
         if (!valid)

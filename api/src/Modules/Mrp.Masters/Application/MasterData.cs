@@ -9,7 +9,7 @@ namespace Mrp.Masters.Application;
 public sealed record ItemInfo(
     Guid Id, string Code, string Name, ItemType ItemType, SupplyType SupplyType, Guid StockUnitId, Guid? PurchaseUnitId,
     bool IsLotTracked, int? ShelfLifeDays, int LeadTimeDays, decimal SafetyStock, decimal MinOrderQty, decimal OrderMultiple,
-    decimal StandardCost, bool IsActive);
+    decimal StandardCost, bool IsActive, decimal SalesPrice = 0m);
 
 /// <summary>Warehouse data other modules need on documents.</summary>
 public sealed record WarehouseInfo(Guid Id, string Code, string Name, WarehouseType WarehouseType, bool IsActive)
@@ -28,7 +28,7 @@ public sealed class MasterData(MastersDbContext db)
         var items = await db.Items.AsNoTracking().Where(i => distinct.Contains(i.Id))
             .Select(i => new ItemInfo(
                 i.Id, i.Code, i.Name, i.ItemType, i.SupplyType, i.StockUnitId, i.PurchaseUnitId, i.IsLotTracked, i.ShelfLifeDays,
-                i.LeadTimeDays, i.SafetyStock, i.MinOrderQty, i.OrderMultiple, i.StandardCost, i.IsActive))
+                i.LeadTimeDays, i.SafetyStock, i.MinOrderQty, i.OrderMultiple, i.StandardCost, i.IsActive, i.SalesPrice))
             .ToDictionaryAsync(i => i.Id, cancellationToken);
         foreach (var id in distinct)
         {
@@ -51,8 +51,21 @@ public sealed class MasterData(MastersDbContext db)
         await db.Items.AsNoTracking()
             .Select(i => new ItemInfo(
                 i.Id, i.Code, i.Name, i.ItemType, i.SupplyType, i.StockUnitId, i.PurchaseUnitId, i.IsLotTracked, i.ShelfLifeDays,
-                i.LeadTimeDays, i.SafetyStock, i.MinOrderQty, i.OrderMultiple, i.StandardCost, i.IsActive))
+                i.LeadTimeDays, i.SafetyStock, i.MinOrderQty, i.OrderMultiple, i.StandardCost, i.IsActive, i.SalesPrice))
             .ToDictionaryAsync(i => i.Id, cancellationToken);
+
+    /// <summary>Writes a new standard cost on items (used to apply rolled-up BOM costs).</summary>
+    public async Task ApplyStandardCostsAsync(IReadOnlyDictionary<Guid, decimal> costByItem, CancellationToken cancellationToken)
+    {
+        var ids = costByItem.Keys.ToList();
+        var items = await db.Items.Where(i => ids.Contains(i.Id)).ToListAsync(cancellationToken);
+        foreach (var item in items)
+        {
+            item.SetStandardCost(costByItem[item.Id]);
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+    }
 
     /// <summary>Warehouses by id. Throws when an id is unknown or inactive.</summary>
     public async Task<IReadOnlyDictionary<Guid, WarehouseInfo>> GetWarehousesAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken)

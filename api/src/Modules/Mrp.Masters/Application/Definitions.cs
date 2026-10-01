@@ -74,7 +74,7 @@ internal sealed class ItemDefinition : IMasterDefinition<Item, ItemDto, SaveItem
         entity.SetDetails(new ItemDetails(
             request.ItemType, request.SupplyType, request.ItemGroupId, request.StockUnitId, request.PurchaseUnitId, request.Barcode,
             request.IsLotTracked, request.ShelfLifeDays, request.LeadTimeDays, request.SafetyStock, request.MinStock, request.MaxStock,
-            request.MinOrderQty, request.OrderMultiple, request.StandardCost));
+            request.MinOrderQty, request.OrderMultiple, request.StandardCost, request.SalesPrice));
     }
 
     public async Task<IReadOnlyList<ItemDto>> ToDtoAsync(IReadOnlyList<Item> entities, MastersDbContext db, CancellationToken cancellationToken)
@@ -84,7 +84,7 @@ internal sealed class ItemDefinition : IMasterDefinition<Item, ItemDto, SaveItem
         return entities.Select(e => new ItemDto(
             e.Id, e.Code, e.Name, e.NameEn, e.IsActive, e.ItemType, e.SupplyType, e.ItemGroupId, e.StockUnitId,
             units.GetValueOrDefault(e.StockUnitId, string.Empty), e.PurchaseUnitId, e.Barcode, e.IsLotTracked, e.ShelfLifeDays, e.LeadTimeDays,
-            e.SafetyStock, e.MinStock, e.MaxStock, e.MinOrderQty, e.OrderMultiple, e.StandardCost)).ToList();
+            e.SafetyStock, e.MinStock, e.MaxStock, e.MinOrderQty, e.OrderMultiple, e.StandardCost, e.SalesPrice)).ToList();
     }
 }
 

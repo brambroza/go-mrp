@@ -47,6 +47,81 @@ public sealed record MaterialSummaryRow(Guid ItemId, string ItemCode, string Ite
 /// <summary>BOM that uses an item.</summary>
 public sealed record WhereUsedRow(Guid BomId, Guid ParentItemId, string ParentItemCode, string ParentItemName, int VersionNo, BomStatus Status, decimal StockQuantity, decimal BatchSize);
 
+/// <summary>Cost breakdown of an item built from its active BOM.</summary>
+public sealed record CostBreakdownDto(
+    Guid ItemId, string ItemCode, string ItemName, string UnitCode, decimal Quantity,
+    decimal MaterialCost, decimal OverheadPercent, decimal OverheadCost, decimal TotalCost, decimal UnitCost,
+    decimal StandardCostOnMaster, decimal SalesPrice, decimal? UnitMargin, decimal? MarginPercent,
+    IReadOnlyList<CostLineDto> Lines, IReadOnlyList<string> Warnings);
+
+/// <summary>Component line of a cost breakdown.</summary>
+public sealed record CostLineDto(
+    int Level, Guid ItemId, string ItemCode, string ItemName, string UnitCode, Guid ParentItemId, string ParentItemCode,
+    decimal Quantity, decimal UnitCost, decimal Amount, bool IsMade);
+
+/// <summary>Cost and margin summary of a manufactured item.</summary>
+public sealed record ItemCostSummary(
+    Guid ItemId, string ItemCode, string ItemName, string UnitCode, decimal RolledUpUnitCost, decimal StandardCostOnMaster,
+    decimal SalesPrice, decimal? UnitMargin, decimal? MarginPercent, IReadOnlyList<string> Warnings);
+
+/// <summary>Items whose standard cost should be replaced by the rolled-up BOM cost.</summary>
+public sealed record ApplyCostsRequest([property: Required, MinLength(1), MaxLength(500)] IReadOnlyList<Guid> ItemIds);
+
+/// <summary>Machine.</summary>
+public sealed record MachineDto(Guid Id, string Code, string Name, string MachineGroup, int Priority, bool IsActive);
+
+/// <summary>Creates or updates a machine.</summary>
+public sealed record SaveMachineRequest(
+    [property: Required, StringLength(40, MinimumLength = 1)] string Code,
+    [property: Required, StringLength(200, MinimumLength = 1)] string Name,
+    [property: Required, StringLength(40, MinimumLength = 1)] string MachineGroup,
+    [property: Range(0, 1000)] int Priority = 100,
+    bool IsActive = true);
+
+/// <summary>Routing of an item.</summary>
+public sealed record RoutingDto(Guid? Id, Guid ItemId, string ItemCode, string ItemName, IReadOnlyList<RoutingOperationDto> Operations);
+
+/// <summary>Operation of a routing.</summary>
+public sealed record RoutingOperationDto(int Seq, string Name, string MachineGroup, decimal SetupMinutes, decimal MinutesPerUnit);
+
+/// <summary>Replaces the routing of an item.</summary>
+public sealed record SaveRoutingRequest([property: Required, MinLength(1), MaxLength(50)] IReadOnlyList<SaveRoutingOperation> Operations);
+
+/// <summary>Operation of a routing request.</summary>
+public sealed record SaveRoutingOperation(
+    [property: Required, StringLength(100, MinimumLength = 1)] string Name,
+    [property: Required, StringLength(40, MinimumLength = 1)] string MachineGroup,
+    [property: Range(0, 100000)] decimal SetupMinutes,
+    [property: Range(0, 100000)] decimal MinutesPerUnit);
+
+/// <summary>Holiday.</summary>
+public sealed record HolidayDto(Guid Id, DateOnly Date, string Name);
+
+/// <summary>Creates a holiday.</summary>
+public sealed record SaveHolidayRequest(DateOnly Date, [property: Required, StringLength(200, MinimumLength = 1)] string Name);
+
+/// <summary>Starts a scheduling run.</summary>
+public sealed record RunScheduleRequest([property: Range(1, 365)] int HorizonDays = 60);
+
+/// <summary>Slot on the Gantt chart.</summary>
+public sealed record ScheduleSlotDto(
+    Guid Id, Guid WorkOrderId, string WorkOrderNo, Guid ItemId, string ItemCode, string ItemName, decimal Quantity, DateOnly DueDate,
+    int Seq, string OperationName, Guid MachineId, string MachineCode, string MachineGroup, DateTimeOffset StartAt, DateTimeOffset EndAt,
+    ScheduleSlotStatus Status, string RunNo);
+
+/// <summary>Result of a scheduling run.</summary>
+public sealed record ScheduleRunDto(
+    string RunNo, DateTimeOffset RanAt, int WorkOrderCount, int SlotCount, IReadOnlyList<ScheduleJobDto> Jobs, IReadOnlyList<ScheduleExceptionDto> Exceptions);
+
+/// <summary>Outcome of one work order in a run.</summary>
+public sealed record ScheduleJobDto(Guid WorkOrderId, string WorkOrderNo, string ItemCode, DateOnly DueDate, DateTimeOffset? StartAt, DateTimeOffset? EndAt, bool IsLate);
+
+/// <summary>Exception of a run.</summary>
+public sealed record ScheduleExceptionDto(Guid WorkOrderId, string WorkOrderNo, string Code, string Message);
+
+/// <summary>Gantt data for a date range.</summary>
+public sealed record GanttDto(DateOnly From, DateOnly To, IReadOnlyList<MachineDto> Machines, IReadOnlyList<ScheduleSlotDto> Slots);
+
 /// <summary>Creates or updates a demand.</summary>
 public sealed record SaveDemandRequest(
     Guid ItemId,

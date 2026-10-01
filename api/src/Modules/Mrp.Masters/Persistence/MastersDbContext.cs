@@ -97,6 +97,7 @@ internal sealed class ItemConfiguration : IEntityTypeConfiguration<Item>
         builder.HasIndex(e => new { e.TenantId, e.ItemType });
         builder.Property(e => e.Barcode).HasMaxLength(50);
         builder.Property(e => e.StandardCost).HasPrecision(18, 4);
+        builder.Property(e => e.SalesPrice).HasPrecision(18, 4);
         builder.HasOne<Unit>().WithMany().HasForeignKey(e => e.StockUnitId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Unit>().WithMany().HasForeignKey(e => e.PurchaseUnitId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<ItemGroup>().WithMany().HasForeignKey(e => e.ItemGroupId).OnDelete(DeleteBehavior.Restrict);
